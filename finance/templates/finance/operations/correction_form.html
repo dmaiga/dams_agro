@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
+        
+        <div class="mb-3">
+            <a href="{% url 'operation_detail' operation.pk %}" class="btn btn-link text-decoration-none p-0 text-muted">
+                <i class="bi bi-arrow-left"></i> Annuler la correction
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-warning py-3">
+                <h5 class="mb-0 fw-bold text-dark text-center">
+                    <i class="bi bi-patch-exclamation-fill me-2"></i>Correction d'Opération
+                </h5>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="bg-warning-subtle rounded-4 p-3 mb-4 border border-warning border-opacity-25">
+                    <div class="row align-items-center">
+                        <div class="col-7">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Libellé</small>
+                            <span class="fw-bold text-dark">{{ operation.label }}</span>
+                        </div>
+                        <div class="col-5 text-end border-start border-warning border-opacity-50">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Actuel</small>
+                            <span class="fs-5 fw-bold text-dark">{{ operation.real_amount }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger shadow-sm rounded-3">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="form-floating mb-3 shadow-sm">
+                        {{ form.amount }}
+                        <label for="{{ form.amount.id_for_label }}">Nouveau montant de correction</label>
+                        {% if form.amount.errors %}
+                            <div class="text-danger small mt-1 px-2">{{ form.amount.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-4 shadow-sm">
+                        {{ form.note }}
+                        <label for="{{ form.note.id_for_label }}">Indiquer motif (Obligatoire)</label>
+                        <div class="form-text px-2">Expliquez brièvement pourquoi vous modifiez ce montant.</div>
+                        {% if form.note.errors %}
+                            <div class="text-danger small mt-1 px-2">{{ form.note.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning py-3 fw-bold rounded-3 shadow">
+                            <i class="bi bi-check-circle-fill me-2"></i>APPLIQUER LA CORRECTION
+                        </button>
+                        <a href="{% url 'operation_detail' operation.pk %}" class="btn btn-light py-2 text-muted">
+                            Abandonner
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-white border rounded-4 shadow-sm">
+            <div class="d-flex align-items-center text-muted small">
+                <i class="bi bi-info-circle fs-5 me-3"></i>
+                <div>
+                    Cette action ne supprimera pas l'historique, mais ajoutera une nouvelle ligne de rectification au montant total.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Cohérence avec les formulaires précédents */
+    .form-floating > .form-control {
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+        font-weight: 600;
+    }
+    .form-floating > .form-control:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+    }
+</style>
+
+{% endblock %}

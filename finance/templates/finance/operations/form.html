@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        
+        <div class="mb-3">
+            <a href="{% url 'operation_list' %}" class="btn btn-link text-decoration-none p-0 text-muted">
+                <i class="bi bi-chevron-left"></i> Annuler et retourner à la liste
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-plus-circle me-2"></i>Nouvelle opération</h5>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post" id="operationForm">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger border-0 shadow-sm mb-4">
+                            <i class="bi bi-exclamation-triangle me-2"></i> {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-4 text-center">
+                        <label class="form-label d-block text-muted small fw-bold text-uppercase mb-3">Type d'opération</label>
+                        <div class="btn-group w-100 shadow-sm" role="group">
+                            <input type="radio" class="btn-check" name="operation_type" id="type_revenu" value="revenu" 
+                                   {% if form.operation_type.value == 'revenu' %}checked{% endif %}>
+                            <label class="btn btn-outline-success py-3 fw-bold" for="type_revenu">
+                                <i class="bi bi-arrow-up-circle me-2"></i>REVENU
+                            </label>
+
+                            <input type="radio" class="btn-check" name="operation_type" id="type_depense" value="depense"
+                                   {% if form.operation_type.value == 'depense' %}checked{% endif %}>
+                            <label class="btn btn-outline-danger py-3 fw-bold" for="type_depense">
+                                <i class="bi bi-arrow-down-circle me-2"></i>DÉPENSE
+                            </label>
+                        </div>
+                        <div class="d-none">{{ form.operation_type }}</div>
+                    </div>
+
+                    <div class="form-floating mb-3 shadow-sm" id="categorie-wrapper">
+                        {{ form.categorie }}
+                        <label for="{{ form.categorie.id_for_label }}">Catégorie de dépense</label>
+                        {% if form.categorie.errors %}
+                            <div class="text-danger small mt-1">{{ form.categorie.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-3 shadow-sm">
+                        {{ form.label }}
+                        <label for="{{ form.label.id_for_label }}">Libellé de l'opération</label>
+                        {% if form.label.errors %}
+                            <div class="text-danger small mt-1">{{ form.label.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6 mb-3">
+                            <div class="form-floating shadow-sm">
+                                {{ form.quantity }}
+                                <label for="{{ form.quantity.id_for_label }}">Quantité</label>
+                            </div>
+                            {% if form.quantity.errors %}
+                                <div class="text-danger small mt-1">{{ form.quantity.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="form-floating shadow-sm">
+                                {{ form.unit_price }}
+                                <label for="{{ form.unit_price.id_for_label }}">Prix Unitaire</label>
+                            </div>
+                            {% if form.unit_price.errors %}
+                                <div class="text-danger small mt-1">{{ form.unit_price.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3 shadow-sm">
+                        {{ form.operation_date }}
+                        <label for="{{ form.operation_date.id_for_label }}">Date</label>
+                        {% if form.operation_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.operation_date.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-4 shadow-sm">
+                        {{ form.note }}
+                        <label for="{{ form.note.id_for_label }}">Note / Observations</label>
+                        {% if form.note.errors %}
+                            <div class="text-danger small mt-1">{{ form.note.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow">
+                        <i class="bi bi-check-lg me-2"></i>ENREGISTRER L'OPÉRATION
+                    </button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Styling pour les Floating Labels avec Bootstrap */
+    .form-floating > .form-control, .form-floating > .form-select {
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+    }
+    .form-floating > label {
+        padding-left: 1rem;
+    }
+    /* Style pour les boutons radio transformés */
+    .btn-check:checked + .btn-outline-success { background-color: #198754; color: white; }
+    .btn-check:checked + .btn-outline-danger { background-color: #dc3545; color: white; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gestion des boutons Radio personnalisés vers le Select caché de Django
+        const radioRevenu = document.getElementById('type_revenu');
+        const radioDepense = document.getElementById('type_depense');
+        const djangoSelect = document.getElementById('id_operation_type');
+        const categorieWrapper = document.getElementById('categorie-wrapper');
+
+        function updateUI(value) {
+            djangoSelect.value = value;
+            if (value === 'depense') {
+                categorieWrapper.classList.remove('d-none');
+            } else {
+                categorieWrapper.classList.add('d-none');
+            }
+        }
+
+        radioRevenu.addEventListener('change', () => updateUI('revenu'));
+        radioDepense.addEventListener('change', () => updateUI('depense'));
+
+        // Initialisation
+        if (radioDepense.checked) updateUI('depense');
+        else if (radioRevenu.checked) updateUI('revenu');
+        else updateUI(djangoSelect.value);
+    });
+</script>
+{% endblock %}

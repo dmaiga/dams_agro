@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="mb-0 fw-bold">Configurations</h4>
+                <p class="text-muted small mb-0">Gestion des catégories de dépenses</p>
+            </div>
+           
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-white py-3 border-bottom"> 
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold text-dark">
+                       Catégories actives
+                    </h6>
+                    <span class="badge bg-primary rounded-pill">
+                        {{ categories.count }} au total
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for categorie in categories %}
+                        <div class="list-group-item py-3 px-4 border-start-0 border-end-0">
+                            <div class="d-flex align-items-center">
+                                
+                                
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 fw-bold text-dark">{{ categorie.nom }}</h6>
+                                       
+                                    </div>
+                                    <p class="text-muted small mb-0 mt-1">
+                                        {% if categorie.description %}
+                                            {{ categorie.description }}
+                                        {% else %}
+                                            <span class="fst-italic opacity-50">Aucune description fournie.</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5">
+                            
+                            <p class="text-muted mb-0">Aucune catégorie disponible.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+       
+
+    </div>
+</div>
+
+{% endblock %}

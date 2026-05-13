@@ -1,0 +1,77 @@
+# =========================
+# Python
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenv
+venv/
+.env/
+.env.*
+
+# =========================
+# Django
+# =========================
+
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Media 
+media/
+
+# Static files collectés 
+staticfiles/
+
+# =========================
+# Secrets & config
+# =========================
+
+.env
+*.env
+*.pem
+*.key
+
+# =========================
+# OS / Editor
+# =========================
+
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# =========================
+# Node / Tailwind (theme/static_src)
+# =========================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build Tailwind (si généré)
+theme/static/css/*.css.map
+
+# =========================
+# Tests / coverage
+# =========================
+
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# Misc
+# =========================
+
+*.sqlite3
+*.bak
+*.tmp

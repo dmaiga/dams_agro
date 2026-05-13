@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Aujourd'hui</small>
+            <span class="fs-5 fw-bold text-dark">{{ operations.count }} op.</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-primary text-white">
+            <a href="{% url 'operation_create' %}" class="text-white text-decoration-none d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Nouveau</span>
+                <i class="bi bi-plus-circle-fill fs-4"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark">
+                <i class="bi bi-clock-history me-2 text-primary"></i>Historique
+            </h5>
+            <div class="d-none d-md-block">
+                <a href="{% url 'operation_create' %}" class="btn btn-primary px-4">
+                    <i class="bi bi-plus-lg me-2"></i>Nouvelle Opération
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-0"> <div class="table-responsive d-none d-md-block">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th>Type</th>
+                        <th>Libellé</th>
+                        <th class="text-end">Montant</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for operation in operations %}
+                    <tr onclick="window.location='{% url 'operation_detail' operation.pk %}'" style="cursor: pointer;">
+                        <td class="ps-4 text-muted small">{{ operation.operation_date }}</td>
+                        <td>
+                            {% if operation.operation_type == 'revenu' %}
+                                <span class="badge rounded-pill bg-success-subtle text-success border border-success">Revenu</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger">Dépense</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-medium">{{ operation.label }}</td>
+                        <td class="text-end fw-bold {% if operation.operation_type == 'revenu' %}text-success{% else %}text-danger{% endif %}">
+                            {% if operation.operation_type == 'revenu' %}+{% else %}-{% endif %} {{ operation.real_amount }}
+                        </td>
+                        <td class="text-end pe-4">
+                            <i class="bi bi-chevron-right text-muted small"></i>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-5 text-muted">Aucune opération enregistrée.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-md-none">
+            <div class="list-group list-group-flush">
+                {% for operation in operations %}
+                <a href="{% url 'operation_detail' operation.pk %}" class="list-group-item list-group-item-action py-3 px-4 border-start-0 border-end-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 45px; height: 45px; background: {% if operation.operation_type == 'revenu' %}#e8f5e9{% else %}#ffebee{% endif %};">
+                                <i class="bi {% if operation.operation_type == 'revenu' %}bi-arrow-up-right text-success{% else %}bi-arrow-down-left text-danger{% endif %} fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">{{ operation.label }}</h6>
+                                <small class="text-muted">{{ operation.operation_date }}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold fs-6 {% if operation.operation_type == 'revenu' %}text-success{% else %}text-danger{% endif %}">
+                                {% if operation.operation_type == 'revenu' %}+{% else %}-{% endif %} {{ operation.real_amount }}
+                            </div>
+                            <span class="badge {% if operation.operation_type == 'revenu' %}bg-success{% else %}bg-danger{% endif %}" style="font-size: 0.65rem; opacity: 0.8;">
+                                {{ operation.operation_type|upper }}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="text-center py-5">
+                    <i class="bi bi-clipboard-x fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">Aucune opération pour le moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
