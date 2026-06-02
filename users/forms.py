@@ -1,5 +1,5 @@
 from django import forms
-
+from users.models import Agent
 
 class LoginForm(forms.Form):
 
@@ -22,3 +22,55 @@ class LoginForm(forms.Form):
             }
         )
     )
+
+
+
+class AgentForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Agent
+
+        fields = [
+            'prenom',
+            'nom',
+            'telephone',
+            'actif',
+            'note'
+        ]
+
+        widgets = {
+
+            'prenom': forms.TextInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
+
+            'nom': forms.TextInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
+
+            'telephone': forms.TextInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
+
+            'actif': forms.CheckboxInput(
+                attrs={
+                    'class': 'form-check-input'
+                }
+            ),
+
+            'note': forms.Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 3
+                }
+            ),
+        }
+
+        

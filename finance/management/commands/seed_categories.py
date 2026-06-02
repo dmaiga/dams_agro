@@ -5,124 +5,60 @@ from finance.models import Categorie
 
 class Command(BaseCommand):
 
-    help = 'Créer les catégories de dépenses'
+    help = 'Créer les catégories d’opérations'
 
     def handle(self, *args, **kwargs):
 
         categories = [
-
+        
             {
-                'nom': 'Essence',
+                'nom': 'Sachets - emballages',
+                'usage_type': 'stock',
                 'description': (
-                    'Achat carburant pour moto, véhicule ou groupe.'
+                    'Produits destinés à la vente.'
                 )
             },
-
-            {
-                'nom': 'Transport',
-                'description': (
-                    'Déplacement, transport marchandises ou livraison.'
-                )
-            },
-
-            {
-                'nom': 'Réparation',
-                'description': (
-                    'Réparation frigo, matériel ou équipement.'
-                )
-            },
-
-            {
-                'nom': 'Électricité',
-                'description': (
-                    'Dépenses liées au courant ou énergie.'
-                )
-            },
-
-            {
-                'nom': 'Sachets',
-                'description': (
-                    'Achat sachets pour emballage.'
-                )
-            },
-
-            {
-                'nom': 'Emballage',
-                'description': (
-                    'Cartons, emballages et protection produits.'
-                )
-            },
-
-            {
-                'nom': 'Eau',
-                'description': (
-                    'Achat eau ou dépenses liées à l’eau.'
-                )
-            },
-
 
             {
                 'nom': 'Matériel',
+                'usage_type': 'both',
                 'description': (
-                    'Petit matériel et équipements.'
+                    'Équipements et outils.'
                 )
             },
 
             {
-                'nom': 'Nettoyage',
+                'nom': 'Fonctionnement',
+                'usage_type': 'depense',
                 'description': (
-                    'Produits nettoyage et entretien.'
+                    'Dépenses courantes de fonctionnement.'
                 )
             },
 
             {
-                'nom': 'Main d’oeuvre',
+                'nom': 'Personnel',
+                'usage_type': 'depense',
                 'description': (
-                    'Paiement aide terrain ou manutention.'
+                    'Paiement des agents et aides.'
                 )
             },
 
             {
-                'nom': 'Téléphone',
+                'nom': 'Revenus',
+                'usage_type': 'revenu',
                 'description': (
-                    'Communication et appels.'
-                )
-            },
-
-            {
-                'nom': 'Recharge',
-                'description': (
-                    'Recharge téléphonique ou internet.'
-                )
-            },
-
-            {
-                'nom': 'Livraison',
-                'description': (
-                    'Dépenses liées aux livraisons.'
-                )
-            },
-
-            {
-                'nom': 'Location',
-                'description': (
-                    'Location matériel ou espace.'
-                )
-            },
-
-            {
-                'nom': 'Taxes',
-                'description': (
-                    'Taxes, frais administratifs ou autorisations.'
+                    'Recettes et encaissements.'
                 )
             },
 
             {
                 'nom': 'Divers',
+                'usage_type': 'both',
                 'description': (
-                    'Dépenses diverses non catégorisées.'
+                    'Autres opérations.'
                 )
             },
+
         ]
 
         created_count = 0
@@ -134,7 +70,14 @@ class Command(BaseCommand):
                 nom=categorie['nom'],
 
                 defaults={
-                    'description': categorie['description']
+
+                    'usage_type': (
+                        categorie['usage_type']
+                    ),
+
+                    'description': (
+                        categorie['description']
+                    )
                 }
             )
 
@@ -144,6 +87,9 @@ class Command(BaseCommand):
         self.stdout.write(
 
             self.style.SUCCESS(
-                f'{created_count} catégories créées avec succès.'
+                (
+                    f'{created_count} catégories '
+                    'créées avec succès.'
+                )
             )
         )

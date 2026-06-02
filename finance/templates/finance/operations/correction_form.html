@@ -32,7 +32,7 @@
                     </div>
                 </div>
 
-                <form method="post">
+                <form method="post" id="correctionForm">
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
@@ -59,9 +59,11 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-warning py-3 fw-bold rounded-3 shadow">
-                            <i class="bi bi-check-circle-fill me-2"></i>APPLIQUER LA CORRECTION
+                        <button type="submit" id="submitBtn" class="btn btn-warning py-3 fw-bold rounded-3 shadow">
+                            <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            <span id="btnText"><i class="bi bi-check-circle-fill me-2"></i>APPLIQUER LA CORRECTION</span>
                         </button>
+                        
                         <a href="{% url 'operation_detail' operation.pk %}" class="btn btn-light py-2 text-muted">
                             Abandonner
                         </a>
@@ -93,6 +95,27 @@
         border-color: #ffc107;
         box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
     }
+    #btnSpinner {
+        margin-right: 8px;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('correctionForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const btnText = document.getElementById('btnText');
+
+        form.addEventListener('submit', function () {
+            // Empêcher les doubles clics
+            submitBtn.disabled = true;
+            // Afficher le spinner
+            btnSpinner.classList.remove('d-none');
+            // Mettre à jour le texte
+            btnText.innerText = " Application en cours...";
+        });
+    });
+</script>
 
 {% endblock %}

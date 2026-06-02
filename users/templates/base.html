@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAM'S</title>
+    <title>DAM'S AGRO</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
@@ -55,7 +55,7 @@
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <span class="navbar-brand fw-bold text-primary">DAM'S</span>
+        <span class="navbar-brand fw-bold text-primary">DAM'S AGRO</span>
         <div style="width: 40px;"></div> </nav>
 
     <div class="offcanvas-lg offcanvas-start sidebar shadow-sm" tabindex="-1" id="sidebarMenu">
@@ -66,7 +66,7 @@
 
         <div class="p-4 d-flex flex-column h-100">
             <div class="d-none d-lg-block mb-4">
-                <h3 class="text-primary fw-bold">DAM'S</h3>
+                <h3 class="text-primary fw-bold">DAM'S AGRO</h3>
             </div>
 
             <ul class="nav nav-pills flex-column mb-auto">
@@ -81,6 +81,18 @@
                         <i class="bi bi-grid-1x2"></i> Catégories
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% url 'product_list' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
+                        <i class="bi bi-box"></i> Produits
+                    </a>
+                </li>
+                <li class="nav-item">
+    <a href="{% url 'agent_list' %}"
+       class="nav-link {% if 'agent' in request.path %}active{% endif %}">
+        <i class="bi bi-people"></i>
+        Agents
+    </a>
+</li>
                 {% endif %}
             </ul>
 

@@ -17,9 +17,48 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from users.views import login_view
+from finance.api_views import *
 urlpatterns = [
     path('admin/', admin.site.urls ),
-    path('', include('users.urls') ),
+    path('', login_view, name='login' ),
+    path('users/', include('users.urls') ),
     path('finance/', include('finance.urls')),
+
+    path(
+        'api/dashboard/',
+        DashboardAPIView.as_view()
+    ),
+
+    path(
+        'api/operations/',
+        OperationListAPIView.as_view()
+    ),
+    path(
+    'api/operations/<int:pk>/',
+    OperationDetailAPIView.as_view() ),
+    
+    path(
+        'api/categories/',
+        CategorieListAPIView.as_view(),
+        name='api_categories'
+    ),
+    path(
+        'api/produits/',
+        ProduitListAPIView.as_view()
+    ),
+
+    path(
+        'api/produits/<int:pk>/',
+        ProduitDetailAPIView.as_view()
+    ),
+
+    path(
+        'api/agents/',
+        AgentPerformanceAPIView.as_view()
+    ),
+
+
+
 
 ]

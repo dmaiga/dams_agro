@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid p-0" style="max-width: 650px;">
+
+    <!-- Retour -->
+    <div class="mb-3">
+
+        <a href="{% url 'product_detail' product.pk %}"
+           class="btn btn-link text-decoration-none p-0 text-secondary small">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Retour
+
+        </a>
+
+    </div>
+
+    <!-- Header -->
+    <div class="mb-4">
+
+        <h2 class="fw-bold text-dark mb-1">
+            {{ product.nom }}
+        </h2>
+
+        <p class="text-muted small">
+            Mise à jour des informations terrain du produit.
+        </p>
+
+    </div>
+
+    <!-- Form -->
+    <form method="post" novalidate>
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+
+        <div class="alert alert-danger py-2 px-3 small rounded-3 mb-4">
+
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+        <!-- Quantité initiale -->
+        <div class="mb-3">
+
+            <label class="form-label fw-bold small text-secondary">
+                Quantité initiale
+            </label>
+
+            {{ form.quantite_initiale }}
+
+            {% if form.quantite_initiale.errors %}
+            <div class="text-danger small mt-1">
+
+                {% for error in form.quantite_initiale.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Row -->
+        <div class="row g-3 mb-3">
+
+            <!-- Vendu -->
+            <div class="col-12 col-sm-4">
+
+                <label class="form-label fw-bold small text-secondary">
+                    Vendu
+                </label>
+
+                {{ form.quantite_vendue }}
+
+                {% if form.quantite_vendue.errors %}
+                <div class="text-danger small mt-1">
+
+                    {% for error in form.quantite_vendue.errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Perdu -->
+            <div class="col-12 col-sm-4">
+
+                <label class="form-label fw-bold small text-secondary">
+                    Perdu
+                </label>
+
+                {{ form.quantite_perdue }}
+
+                {% if form.quantite_perdue.errors %}
+                <div class="text-danger small mt-1">
+
+                    {% for error in form.quantite_perdue.errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Offert -->
+            <div class="col-12 col-sm-4">
+
+                <label class="form-label fw-bold small text-secondary">
+                    Offert
+                </label>
+
+                {{ form.quantite_offerte }}
+
+                {% if form.quantite_offerte.errors %}
+                <div class="text-danger small mt-1">
+
+                    {% for error in form.quantite_offerte.errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+
+                </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- Note -->
+        <div class="mb-4">
+
+            <label class="form-label fw-bold small text-secondary">
+                Note
+            </label>
+
+            {{ form.note }}
+
+            {% if form.note.errors %}
+            <div class="text-danger small mt-1">
+
+                {% for error in form.note.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Submit -->
+        <button type="submit"
+                class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+
+            <i class="bi bi-check-circle me-1"></i>
+            Enregistrer les modifications
+
+        </button>
+
+    </form>
+
+</div>
+
+<style>
+
+    form input,
+    form textarea {
+
+        display: block;
+
+        width: 100%;
+
+        padding: 0.55rem 0.75rem;
+
+        font-size: 0.95rem;
+
+        line-height: 1.5;
+
+        color: #212529;
+
+        background-color: #fff;
+
+        border: 1px solid #dee2e6;
+
+        border-radius: 0.5rem;
+
+        transition:
+            border-color .15s ease-in-out,
+            box-shadow .15s ease-in-out;
+    }
+
+    form input:focus,
+    form textarea:focus {
+
+        border-color: #0d6efd;
+
+        outline: 0;
+
+        box-shadow:
+            0 0 0 0.25rem
+            rgba(13, 110, 253, 0.15);
+    }
+
+</style>
+
+{% endblock %}

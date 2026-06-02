@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid p-0" style="max-width: 750px;">
+
+    <!-- Retour -->
+    <div class="mb-3">
+
+        <a href="{% url 'product_list' %}"
+           class="btn btn-link text-decoration-none p-0 text-secondary small">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Retour
+
+        </a>
+
+    </div>
+
+    <!-- Header -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+                <div>
+
+                    <h2 class="fw-bold mb-1">
+                        {{ product.nom }}
+                    </h2>
+
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+
+                        <span class="badge bg-info-subtle text-dark border">
+                            {{ product.operation_stock.categorie }}
+                        </span>
+
+                        <span class="badge bg-light text-dark border">
+                            {{ product.operation_stock.operation_date }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="text-end">
+
+                    <small class="text-muted d-block mb-1">
+                        Stock restant
+                    </small>
+
+                    <span class="badge fs-6 px-3 py-2
+                        {% if product.stock_restant <= 0 %}
+                            bg-danger
+                        {% elif product.stock_restant <= 5 %}
+                            bg-warning text-dark
+                        {% else %}
+                            bg-success
+                        {% endif %}
+                    ">
+                        {{ product.stock_restant }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block mb-2">
+                        Initial
+                    </small>
+
+                    <h4 class="fw-bold mb-0">
+                        {{ product.quantite_initiale }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-6 col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block mb-2">
+                        Vendu
+                    </small>
+
+                    <h4 class="fw-bold mb-0 text-success">
+                        {{ product.quantite_vendue }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-6 col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block mb-2">
+                        Perdu
+                    </small>
+
+                    <h4 class="fw-bold mb-0 text-danger">
+                        {{ product.quantite_perdue }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-6 col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <small class="text-muted d-block mb-2">
+                        Offert
+                    </small>
+
+                    <h4 class="fw-bold mb-0 text-warning">
+                        {{ product.quantite_offerte }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+<!-- Production -->
+<div class="alert {% if product.quantite_attachee_totale == product.quantite_attendue_agents %}alert-success{% else %}alert-warning{% endif %} mb-4">
+
+    Production enregistrée :
+    <strong>{{ product.quantite_attachee_totale }}</strong>
+
+    /
+
+    Quantité attendue :
+    <strong>{{ product.quantite_attendue_agents }}</strong>
+
+</div>
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h6 class="fw-bold mb-0">
+            Production
+        </h6>
+
+        <a href="{% url 'production_create' product.pk %}"
+           class="btn btn-sm btn-primary">
+
+            <i class="bi bi-plus-circle"></i>
+            Ajouter
+
+        </a>
+
+    </div>
+
+    <div class="card-body">
+
+        {% if contributions %}
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Agent</th>
+
+                            <th class="text-center">
+                                Quantité
+                            </th>
+
+                            <th class="text-end">
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for contribution in contributions %}
+
+                        <tr>
+
+                            <td>
+
+                                <strong>
+                                    {{ contribution.agent.prenom }}
+                                    {{ contribution.agent.nom }}
+                                </strong>
+
+                            </td>
+
+                            <td class="text-center">
+
+                                <span class="badge bg-success">
+
+                                    {{ contribution.quantite_attachee }}
+
+                                </span>
+
+                            </td>
+
+                            <td class="text-end">
+
+                                <a href="{% url 'production_update' contribution.pk %}"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-pencil"></i>
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                    <tfoot>
+
+                        <tr>
+
+                            <th>Total</th>
+
+                            <th class="text-center">
+
+                                {% with total=product.quantite_attachee_totale %}
+                                    {{ total }}
+                                {% endwith %}
+
+                            </th>
+
+                            <th></th>
+
+                        </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-4">
+
+                <i class="bi bi-people fs-1 text-muted"></i>
+
+                <p class="text-muted mb-0 mt-2">
+
+                    Aucune production enregistrée.
+
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+    <!-- Note -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h6 class="fw-bold mb-3">
+                Note
+            </h6>
+
+            {% if product.note %}
+
+                <div class="text-dark">
+                    {{ product.note|linebreaks }}
+                </div>
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+                    Aucune note renseignée.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- Action -->
+    <a href="{% url 'product_update' product.pk %}"
+       class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+
+        <i class="bi bi-pencil-square me-1"></i>
+        Mettre à jour le produit
+
+    </a>
+
+</div>
+{% endblock %}

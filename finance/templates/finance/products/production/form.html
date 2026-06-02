@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h3 class="mb-1">
+            {% if is_update %}
+                Modifier une production
+            {% else %}
+                Ajouter une production
+            {% endif %}
+        </h3>
+
+        <p class="text-muted mb-0">
+
+            Produit :
+            <strong>{{ produit.nom }}</strong>
+
+        </p>
+
+    </div>
+
+</div>
+<div class="alert alert-light border mb-4">
+
+    <div class="row text-center">
+
+        <div class="col-md-3">
+            <strong>{{ produit.quantite_initiale }}</strong>
+            <br>
+            <small class="text-muted">Initial</small>
+        </div>
+
+        <div class="col-md-3">
+            <strong>{{ produit.quantite_perdue }}</strong>
+            <br>
+            <small class="text-muted">Perdu</small>
+        </div>
+
+        <div class="col-md-3">
+            <strong>{{ produit.quantite_offerte }}</strong>
+            <br>
+            <small class="text-muted">Offert</small>
+        </div>
+
+        <div class="col-md-3">
+            <strong>{{ produit.stock_restant }}</strong>
+            <br>
+            <small class="text-muted">Restant</small>
+        </div>
+
+    </div>
+
+</div>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                Agent
+            </label>
+
+            {{ form.agent }}
+
+            {% if form.agent.errors %}
+                <div class="text-danger small mt-1">
+                    {{ form.agent.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                Quantité attachée
+            </label>
+
+            {{ form.quantite_attachee }}
+
+            {% if form.quantite_attachee.errors %}
+                <div class="text-danger small mt-1">
+                    {{ form.quantite_attachee.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% if form.non_field_errors %}
+
+        <div class="alert alert-danger">
+
+            {{ form.non_field_errors }}
+
+        </div>
+
+    {% endif %}
+
+    <div class="d-flex gap-2 mt-4">
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
+
+            <i class="bi bi-check-circle"></i>
+
+            {% if is_update %}
+                Mettre à jour
+            {% else %}
+                Enregistrer
+            {% endif %}
+
+        </button>
+
+        <a
+            href="{% url 'product_list' %}"
+            class="btn btn-outline-secondary"
+        >
+            Annuler
+        </a>
+
+    </div>
+
+</form>
+
+{% endblock %}
