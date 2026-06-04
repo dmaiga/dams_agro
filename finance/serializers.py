@@ -63,6 +63,8 @@ class OperationSerializer(serializers.ModelSerializer):
             'categorie_nom',
 
             'label',
+            
+            'quantity',
 
             'montant_initial',
 
