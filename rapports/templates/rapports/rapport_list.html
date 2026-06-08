@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}
+Rapports journaliers
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mes rapports</h2>
+
+        <a href="{% url 'rapport_create' %}"
+           class="btn btn-primary">
+            Nouveau rapport
+        </a>
+    </div>
+
+    {% if rapports %}
+
+        <div class="card shadow-sm">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Activité</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for rapport in rapports %}
+
+                        <tr>
+
+                            <td>
+                                {{ rapport.date }}
+                            </td>
+
+                            <td>
+                                {{ rapport.activite_realisee|truncatechars:80 }}
+                            </td>
+
+                            <td>
+
+                                <a href="{% url 'rapport_detail' rapport.pk %}"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    Consulter
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+            Aucun rapport enregistré.
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

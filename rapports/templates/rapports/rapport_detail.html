@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}
+Détail du rapport
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            Rapport du {{ rapport.date }}
+        </div>
+
+        <div class="card-body">
+
+            <h5>Activité réalisée</h5>
+
+            <p>
+                {{ rapport.activite_realisee }}
+            </p>
+
+            {% if rapport.probleme %}
+                <h5>Difficultés</h5>
+                <p>{{ rapport.probleme }}</p>
+            {% endif %}
+
+            {% if rapport.solution %}
+                <h5>Solutions</h5>
+                <p>{{ rapport.solution }}</p>
+            {% endif %}
+
+            {% if rapport.commentaire %}
+                <h5>Commentaire</h5>
+                <p>{{ rapport.commentaire }}</p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            Agents participants
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Implication</th>
+                            <th>Maîtrise</th>
+                            <th>Observation</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for participant in participants %}
+
+                        <tr>
+
+                            <td>
+                                {{ participant.agent }}
+                            </td>
+
+                            <td>
+                                {{ participant.get_implication_display }}
+                            </td>
+
+                            <td>
+                                {{ participant.get_maitrise_display }}
+                            </td>
+
+                            <td>
+                                {{ participant.observation|default:"-" }}
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="4">
+                                Aucun participant enregistré.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

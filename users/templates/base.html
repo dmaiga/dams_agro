@@ -71,6 +71,13 @@
 
             <ul class="nav nav-pills flex-column mb-auto">
                 {% if user.is_authenticated %}
+               <li class="nav-item">
+                    <a href="{% url 'rapport_list' %}"
+                       class="nav-link {% if 'rapport' in request.path %}active{% endif %}">
+                        <i class="bi bi-journal-text"></i>
+                        Rapports
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{% url 'operation_list' %}" class="nav-link {% if 'operation' in request.path %}active{% endif %}">
                         <i class="bi bi-wallet2"></i> Opérations
@@ -87,12 +94,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-    <a href="{% url 'agent_list' %}"
-       class="nav-link {% if 'agent' in request.path %}active{% endif %}">
-        <i class="bi bi-people"></i>
-        Agents
-    </a>
-</li>
+                    <a href="{% url 'agent_list' %}"
+                       class="nav-link {% if 'agent' in request.path %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        Agents
+                    </a>
+                </li>
                 {% endif %}
             </ul>
 

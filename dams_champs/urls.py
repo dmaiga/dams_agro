@@ -24,6 +24,7 @@ urlpatterns = [
     path('', login_view, name='login' ),
     path('users/', include('users.urls') ),
     path('finance/', include('finance.urls')),
+    path('rapports/', include('rapports.urls')),
 
     path(
         'api/dashboard/',
