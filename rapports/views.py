@@ -12,6 +12,14 @@ from rapports.models import (
     RapportJournalier,
     ParticipationAgent,
 )
+from django.forms import modelformset_factory
+
+ParticipationFormSet = modelformset_factory(
+    ParticipationAgent,
+    form=ParticipationAgentForm,
+    extra=1,
+    can_delete=False,
+)
 
 @login_required
 def rapport_list(request):
@@ -29,16 +37,11 @@ def rapport_list(request):
 
 @login_required
 def rapport_create(request):
-    ParticipationFormSet = modelformset_factory(
-        ParticipationAgent,
-        form=ParticipationAgentForm,
-        extra=3,
-        can_delete=False,
-    )
+
     if request.method == "POST":
         form = RapportJournalierForm(request.POST)
         formset = ParticipationFormSet(
-            request.POST,
+            request.POST or None,
             queryset=ParticipationAgent.objects.none()
         )
         agents = Agent.objects.filter(
@@ -92,7 +95,6 @@ def rapport_create(request):
         "rapports/rapport_create.html",
         context,
     )
-
 
 @login_required
 def rapport_detail(request, pk):

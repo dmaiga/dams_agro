@@ -6,103 +6,198 @@ Détail du rapport
 
 {% block content %}
 
-<div class="container py-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div class="card shadow-sm mb-4">
+    <div>
+        <h3 class="mb-1">
+            Rapport journalier
+        </h3>
+        <small class="text-muted">
+            {{ rapport.date }}
+        </small>
+    </div>
 
-        <div class="card-header">
-            Rapport du {{ rapport.date }}
-        </div>
+    <a href="{% url 'rapport_list' %}"
+       class="btn btn-outline-secondary btn-sm">
 
-        <div class="card-body">
+        <i class="bi bi-arrow-left"></i>
+        Retour
 
-            <h5>Activité réalisée</h5>
+    </a>
 
-            <p>
-                {{ rapport.activite_realisee }}
-            </p>
+</div>
 
-            {% if rapport.probleme %}
-                <h5>Difficultés</h5>
-                <p>{{ rapport.probleme }}</p>
-            {% endif %}
+<div class="card shadow-sm border-0 mb-4">
 
-            {% if rapport.solution %}
-                <h5>Solutions</h5>
-                <p>{{ rapport.solution }}</p>
-            {% endif %}
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            Activité réalisée
+        </h5>
+    </div>
 
-            {% if rapport.commentaire %}
-                <h5>Commentaire</h5>
-                <p>{{ rapport.commentaire }}</p>
-            {% endif %}
+    <div class="card-body">
 
-        </div>
+        <p class="mb-0">
+            {{ rapport.activite_realisee }}
+        </p>
 
     </div>
 
-    <div class="card shadow-sm">
+</div>
 
-        <div class="card-header">
+{% if rapport.probleme %}
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+        <h5 class="mb-0 text-danger">
+            Difficultés rencontrées
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        {{ rapport.probleme|linebreaks }}
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if rapport.solution %}
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+        <h5 class="mb-0 text-primary">
+            Solutions appliquées
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        {{ rapport.solution|linebreaks }}
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if rapport.resultat_obtenu %}
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+        <h5 class="mb-0 text-success">
+            Résultats obtenus
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        {{ rapport.resultat_obtenu|linebreaks }}
+
+    </div>
+
+</div>
+
+{% endif %}
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
             Agents participants
-        </div>
+        </h5>
 
-        <div class="card-body">
+    </div>
 
-            <div class="table-responsive">
+    <div class="card-body">
 
-                <table class="table">
+        {% for participant in participants %}
 
-                    <thead>
-                        <tr>
-                            <th>Agent</th>
-                            <th>Implication</th>
-                            <th>Maîtrise</th>
-                            <th>Observation</th>
-                        </tr>
-                    </thead>
+            <div class="card border mb-3">
 
-                    <tbody>
+                <div class="card-body">
 
-                    {% for participant in participants %}
+                    <div class="d-flex justify-content-between align-items-start">
 
-                        <tr>
+                        <div>
 
-                            <td>
+                            <h6 class="fw-bold mb-1">
                                 {{ participant.agent }}
-                            </td>
+                            </h6>
 
-                            <td>
+                            <small class="text-muted">
+                                Participant
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+
+                        <div class="col-6">
+
+                            <small class="text-muted d-block">
+                                Implication
+                            </small>
+
+                            <strong>
                                 {{ participant.get_implication_display }}
-                            </td>
+                            </strong>
 
-                            <td>
+                        </div>
+
+                        <div class="col-6">
+
+                            <small class="text-muted d-block">
+                                Maîtrise
+                            </small>
+
+                            <strong>
                                 {{ participant.get_maitrise_display }}
-                            </td>
+                            </strong>
 
-                            <td>
-                                {{ participant.observation|default:"-" }}
-                            </td>
+                        </div>
 
-                        </tr>
+                    </div>
 
-                    {% empty %}
+                    {% if participant.observation %}
 
-                        <tr>
-                            <td colspan="4">
-                                Aucun participant enregistré.
-                            </td>
-                        </tr>
+                        <div class="mt-3">
 
-                    {% endfor %}
+                            <small class="text-muted d-block mb-1">
+                                Observation
+                            </small>
 
-                    </tbody>
+                            <p class="mb-0">
+                                {{ participant.observation }}
+                            </p>
 
-                </table>
+                        </div>
+
+                    {% endif %}
+
+                </div>
 
             </div>
 
-        </div>
+        {% empty %}
+
+            <div class="alert alert-info mb-0">
+
+                Aucun participant enregistré.
+
+            </div>
+
+        {% endfor %}
 
     </div>
 

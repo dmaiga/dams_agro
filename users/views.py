@@ -64,10 +64,8 @@ def logout_view(request):
     return redirect('login')
 
 
-
 @login_required
 def agent_create(request):
-
     if request.method == 'POST':
 
         form = AgentForm(request.POST)
@@ -101,6 +99,7 @@ def agent_create(request):
         context
     )
 
+
 @login_required
 def agent_list(request):
 
@@ -119,8 +118,6 @@ def agent_list(request):
         'users/agents/agent_list.html',
         context
     )
-
-
 
 
 @login_required

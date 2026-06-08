@@ -12,7 +12,7 @@ class RapportJournalierForm(forms.ModelForm):
             "activite_realisee",
             "probleme",
             "solution",
-            "commentaire",
+            "resultat_obtenu",
         )
 
         widgets = {
@@ -40,7 +40,7 @@ class RapportJournalierForm(forms.ModelForm):
                     "rows": 3,
                 }
             ),
-            "commentaire": forms.Textarea(
+            "resultat_obtenu": forms.Textarea(
                 attrs={
                     "class": "form-control",
                     "rows": 3,
@@ -85,10 +85,3 @@ class ParticipationAgentForm(forms.ModelForm):
         }
 
 
-ParticipationAgentFormSet = inlineformset_factory(
-    RapportJournalier,
-    ParticipationAgent,
-    form=ParticipationAgentForm,
-    extra=5,
-    can_delete=True
-)

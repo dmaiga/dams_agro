@@ -6,59 +6,303 @@ Nouveau rapport
 
 {% block content %}
 
-<div class="container py-4">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
 
-    <div class="card shadow-sm">
+    <div>
+        <h3 class="mb-1">
+            Rapport journalier
+        </h3>
+        <small class="text-muted">
+            Enregistrer les activités réalisées et les participants
+        </small>
+    </div>
 
-        <div class="card-header">
-            <h3 class="mb-0">
-                Rapport journalier
-            </h3>
+</div>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                Informations générales
+            </h5>
         </div>
 
         <div class="card-body">
 
-            <form method="post">
+            {% for field in form %}
 
-                {% csrf_token %}
+                <div class="mb-3">
 
-                {{ form.as_p }}
+                    <label class="form-label fw-semibold">
+                        {{ field.label }}
+                    </label>
 
-                <hr>
+                    {{ field }}
 
-                <h5 class="mb-3">
-                    Agents participants
-                </h5>
+                    {% if field.help_text %}
+                        <small class="text-muted d-block mt-1">
+                            {{ field.help_text }}
+                        </small>
+                    {% endif %}
 
-                {{ formset.management_form }}
+                    {% for error in field.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
 
-                {% for participant_form in formset %}
+                </div>
 
-                    <div class="card mb-3">
+            {% endfor %}
 
-                        <div class="card-body">
+        </div>
 
-                            {{ participant_form.as_p }}
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h5 class="mb-0">
+                Agents participants
+            </h5>
+            <small class="text-muted">
+                Évaluer l'implication et la maîtrise de chaque agent
+            </small>
+        </div>
+
+    </div>
+
+    <div class="d-grid mb-3">
+
+        <button
+            type="button"
+            id="add-form"
+            class="btn btn-outline-primary"
+        >
+            <i class="bi bi-plus-circle"></i>
+            Ajouter un participant
+        </button>
+
+    </div>
+
+    {{ formset.management_form }}
+
+    <div id="participants-container">
+
+        {% for participant_form in formset %}
+
+            <div class="participant-form card shadow-sm border-0 mb-3">
+
+                <div class="card-body">
+
+                    {% for hidden in participant_form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+
+                            <label class="form-label fw-semibold">
+                                {{ participant_form.agent.label }}
+                            </label>
+
+                            {{ participant_form.agent }}
+
+                        </div>
+
+                        <div class="col-6">
+
+                            <label class="form-label fw-semibold">
+                                {{ participant_form.implication.label }}
+                            </label>
+
+                            {{ participant_form.implication }}
+
+                        </div>
+
+                        <div class="col-6">
+
+                            <label class="form-label fw-semibold">
+                                {{ participant_form.maitrise.label }}
+                            </label>
+
+                            {{ participant_form.maitrise }}
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <label class="form-label fw-semibold">
+                                {{ participant_form.observation.label }}
+                            </label>
+
+                            {{ participant_form.observation }}
 
                         </div>
 
                     </div>
 
-                {% endfor %}
+                    <div class="mt-3">
 
-                <button type="submit"
-                        class="btn btn-success">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm remove-form"
+                        >
+                            <i class="bi bi-trash"></i>
+                            Retirer
+                        </button>
 
-                    Enregistrer le rapport
+                    </div>
 
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="d-grid mt-4">
+
+        <button
+            type="submit"
+            class="btn btn-success btn-lg"
+        >
+            <i class="bi bi-check-circle"></i>
+            Enregistrer le rapport
+        </button>
+
+    </div>
+
+</form>
+
+<div id="empty-form-template" class="d-none">
+
+    <div class="participant-form card shadow-sm border-0 mb-3">
+
+        <div class="card-body">
+
+            {% for hidden in formset.empty_form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            <div class="row g-3">
+
+                <div class="col-12">
+
+                    <label class="form-label fw-semibold">
+                        {{ formset.empty_form.agent.label }}
+                    </label>
+
+                    {{ formset.empty_form.agent }}
+
+                </div>
+
+                <div class="col-6">
+
+                    <label class="form-label fw-semibold">
+                        {{ formset.empty_form.implication.label }}
+                    </label>
+
+                    {{ formset.empty_form.implication }}
+
+                </div>
+
+                <div class="col-6">
+
+                    <label class="form-label fw-semibold">
+                        {{ formset.empty_form.maitrise.label }}
+                    </label>
+
+                    {{ formset.empty_form.maitrise }}
+
+                </div>
+
+                <div class="col-12">
+
+                    <label class="form-label fw-semibold">
+                        {{ formset.empty_form.observation.label }}
+                    </label>
+
+                    {{ formset.empty_form.observation }}
+
+                </div>
+
+            </div>
+
+            <div class="mt-3">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm remove-form"
+                >
+                    <i class="bi bi-trash"></i>
+                    Retirer
                 </button>
 
-            </form>
+            </div>
 
         </div>
 
     </div>
 
 </div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const addButton = document.getElementById('add-form');
+    const container = document.getElementById('participants-container');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+
+    addButton.addEventListener('click', function () {
+
+        const formCount = parseInt(totalForms.value);
+
+        let template = document.getElementById(
+            'empty-form-template'
+        ).innerHTML;
+
+        template = template.replace(
+            /__prefix__/g,
+            formCount
+        );
+
+        container.insertAdjacentHTML(
+            'beforeend',
+            template
+        );
+
+        totalForms.value = formCount + 1;
+
+    });
+
+    container.addEventListener('click', function (e) {
+
+        const removeBtn = e.target.closest('.remove-form');
+
+        if (!removeBtn) {
+            return;
+        }
+
+        const formCard = removeBtn.closest('.participant-form');
+
+        if (
+            document.querySelectorAll('.participant-form').length > 1
+        ) {
+            formCard.remove();
+        }
+
+    });
+
+});
+
+</script>
 
 {% endblock %}

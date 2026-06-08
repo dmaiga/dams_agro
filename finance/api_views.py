@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from finance.models import Categorie, Operation, Produit, ProductionAgent
-from .serializers import AgentPerformanceSerializer, CategorieSerializer, OperationDetailSerializer, OperationSerializer, ProduitSerializer
+from finance.serializers import AgentPerformanceSerializer, CategorieSerializer, OperationDetailSerializer, OperationSerializer, ProduitSerializer
 
 class DateFilterMixin:
     """

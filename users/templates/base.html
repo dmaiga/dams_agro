@@ -47,6 +47,27 @@
             padding: 1.5rem;
             border: 1px solid #e9ecef;
         }
+
+        @media (max-width: 768px) {
+        
+            .content-card {
+                padding: 1rem;
+                border-radius: 8px;
+            }
+        
+        }
+        .form-control,
+        .form-select {
+            min-height: 48px;
+        }
+        
+        @media (max-width: 768px) {
+        
+            .card-body {
+                padding: 1rem;
+            }
+        
+        }
     </style>
 </head>
 <body>
@@ -79,25 +100,27 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{% url 'agent_list' %}"
+                       class="nav-link {% if 'agent' in request.path %}active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        Agents
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{% url 'operation_list' %}" class="nav-link {% if 'operation' in request.path %}active{% endif %}">
                         <i class="bi bi-wallet2"></i> Opérations
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.path %}active{% endif %}">
-                        <i class="bi bi-grid-1x2"></i> Catégories
-                    </a>
-                </li>
+
                 <li class="nav-item">
                     <a href="{% url 'product_list' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
                         <i class="bi bi-box"></i> Produits
                     </a>
                 </li>
+  
                 <li class="nav-item">
-                    <a href="{% url 'agent_list' %}"
-                       class="nav-link {% if 'agent' in request.path %}active{% endif %}">
-                        <i class="bi bi-people"></i>
-                        Agents
+                    <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.path %}active{% endif %}">
+                        <i class="bi bi-grid-1x2"></i> Catégories
                     </a>
                 </li>
                 {% endif %}

@@ -6,78 +6,118 @@ Rapports journaliers
 
 {% block content %}
 
-<div class="container py-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Mes rapports</h2>
+    <h2 class="h4 mb-0">
+        Mes rapports
+    </h2>
 
-        <a href="{% url 'rapport_create' %}"
-           class="btn btn-primary">
+    <a href="{% url 'rapport_create' %}"
+       class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i>
+        <span class="d-none d-md-inline">
             Nouveau rapport
-        </a>
+        </span>
+    </a>
+
+</div>
+
+{% if rapports %}
+
+    <!-- Desktop -->
+
+    <div class="card shadow-sm d-none d-lg-block">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Activité</th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for rapport in rapports %}
+
+                    <tr>
+
+                        <td>
+                            {{ rapport.date }}
+                        </td>
+
+                        <td>
+                            {{ rapport.activite_realisee|truncatechars:80 }}
+                        </td>
+
+                        <td>
+
+                            <a href="{% url 'rapport_detail' rapport.pk %}"
+                               class="btn btn-sm btn-outline-primary">
+
+                                Consulter
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
 
-    {% if rapports %}
+    <!-- Mobile -->
 
-        <div class="card shadow-sm">
+    <div class="d-lg-none">
 
-            <div class="table-responsive">
+        {% for rapport in rapports %}
 
-                <table class="table table-hover mb-0">
+            <div class="card shadow-sm mb-3">
 
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Activité</th>
-                            <th></th>
-                        </tr>
-                    </thead>
+                <div class="card-body">
 
-                    <tbody>
+                    <div class="small text-muted mb-2">
+                        {{ rapport.date }}
+                    </div>
 
-                    {% for rapport in rapports %}
+                    <p class="mb-3">
+                        {{ rapport.activite_realisee|truncatechars:120 }}
+                    </p>
 
-                        <tr>
+                    <a href="{% url 'rapport_detail' rapport.pk %}"
+                       class="btn btn-outline-primary btn-sm w-100">
 
-                            <td>
-                                {{ rapport.date }}
-                            </td>
+                        Consulter
 
-                            <td>
-                                {{ rapport.activite_realisee|truncatechars:80 }}
-                            </td>
+                    </a>
 
-                            <td>
-
-                                <a href="{% url 'rapport_detail' rapport.pk %}"
-                                   class="btn btn-sm btn-outline-primary">
-
-                                    Consulter
-
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
+                </div>
 
             </div>
 
-        </div>
+        {% endfor %}
 
-    {% else %}
+    </div>
 
-        <div class="alert alert-info">
-            Aucun rapport enregistré.
-        </div>
+{% else %}
 
-    {% endif %}
+    <div class="alert alert-info">
+        Aucun rapport enregistré.
+    </div>
 
-</div>
+{% endif %}
 
 {% endblock %}

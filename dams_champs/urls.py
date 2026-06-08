@@ -19,6 +19,8 @@ from django.urls import path, include
 
 from users.views import login_view
 from finance.api_views import *
+from rapports.api_views import *
+
 urlpatterns = [
     path('admin/', admin.site.urls ),
     path('', login_view, name='login' ),
@@ -58,6 +60,21 @@ urlpatterns = [
         'api/agents/',
         AgentPerformanceAPIView.as_view()
     ),
+    
+    path(
+        "api/rapports/",
+        RapportListAPIView.as_view(),
+        
+    ),
+
+    path(
+        "api/rapports/<int:pk>/",
+        RapportDetailAPIView.as_view(),
+        ),
+    path(
+        "api/superviseurs/",
+        SuperviseurListAPIView.as_view(),
+        ),
 
 
 

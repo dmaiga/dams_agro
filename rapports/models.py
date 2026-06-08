@@ -23,8 +23,7 @@ class RapportJournalier(models.Model):
     solution = models.TextField(
         blank=True
     )
-
-    commentaire = models.TextField(
+    resultat_obtenu = models.TextField(
         blank=True
     )
 
