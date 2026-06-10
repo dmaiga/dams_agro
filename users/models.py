@@ -6,16 +6,27 @@ from django.db import models
 from .managers import UserManager
 
 class User(AbstractUser):
+    TYPE_USERS_CHOICES = (
+        ('superviseur', 'Responsable Technique'),
+        ('finance', 'Responsable Finanaciere'),
+
+    )
+
     username = None
     phone_number = models.CharField(
         max_length=20,
         unique=True
     )
+    type_user = models.CharField(max_length=50, choices=TYPE_USERS_CHOICES)
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []
     objects = UserManager()
     def __str__(self):
         return self.phone_number
+    @property
+    def est_superviseur(self):
+        """Vérifie si l'user est un superviseur"""
+        return self.type_user == 'superviseur'
 
 class Agent(models.Model):
     superviseur = models.ForeignKey(

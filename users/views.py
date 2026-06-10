@@ -15,6 +15,10 @@ from users.models import Agent
 def login_view(request):
 
     if request.user.is_authenticated:
+
+        if request.user.est_superviseur:
+            return redirect('rapport_list')
+
         return redirect('operation_list')
 
     form = LoginForm()
@@ -26,7 +30,6 @@ def login_view(request):
         if form.is_valid():
 
             phone_number = form.cleaned_data['phone_number']
-
             password = form.cleaned_data['password']
 
             user = authenticate(
@@ -39,6 +42,9 @@ def login_view(request):
 
                 login(request, user)
 
+                if user.est_superviseur:
+                    return redirect('rapport_list')
+
                 return redirect('operation_list')
 
             messages.error(
@@ -46,17 +52,11 @@ def login_view(request):
                 'Identifiants invalides.'
             )
 
-    context = {
-        'form': form
-    }
-
     return render(
         request,
         'users/login.html',
-        context
+        {'form': form}
     )
-
-
 def logout_view(request):
 
     logout(request)

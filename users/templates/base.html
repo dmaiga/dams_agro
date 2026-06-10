@@ -91,38 +91,43 @@
             </div>
 
             <ul class="nav nav-pills flex-column mb-auto">
-                {% if user.is_authenticated %}
-               <li class="nav-item">
-                    <a href="{% url 'rapport_list' %}"
-                       class="nav-link {% if 'rapport' in request.path %}active{% endif %}">
-                        <i class="bi bi-journal-text"></i>
-                        Rapports
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'agent_list' %}"
-                       class="nav-link {% if 'agent' in request.path %}active{% endif %}">
-                        <i class="bi bi-people"></i>
-                        Agents
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'operation_list' %}" class="nav-link {% if 'operation' in request.path %}active{% endif %}">
-                        <i class="bi bi-wallet2"></i> Opérations
-                    </a>
-                </li>
+                {% if user.is_authenticated and user.est_superviseur %}
+                      
 
+                                <li class="nav-item">
+                                    <a href="{% url 'rapport_list' %}"
+                                       class="nav-link {% if 'rapport' in request.path %}active{% endif %}">
+                                        <i class="bi bi-journal-text"></i>
+                                        Rapports
+                                    </a>
+                                </li>
+                            
+                                <li class="nav-item">
+                                    <a href="{% url 'agent_list' %}"
+                                       class="nav-link {% if 'agent' in request.path %}active{% endif %}">
+                                        <i class="bi bi-people"></i>
+                                        Agents
+                                    </a>
+                                </li>
+                            
+                            {% else %}
                 <li class="nav-item">
-                    <a href="{% url 'product_list' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
-                        <i class="bi bi-box"></i> Produits
-                    </a>
-                </li>
-  
-                <li class="nav-item">
-                    <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.path %}active{% endif %}">
-                        <i class="bi bi-grid-1x2"></i> Catégories
-                    </a>
-                </li>
+                        <a href="{% url 'operation_list' %}" class="nav-link {% if 'operation' in request.path %}active{% endif %}">
+                            <i class="bi bi-wallet2"></i> Opérations
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{% url 'product_list' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
+                            <i class="bi bi-box"></i> Produits
+                        </a>
+                    </li>
+                
+                    <li class="nav-item">
+                        <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.path %}active{% endif %}">
+                            <i class="bi bi-grid-1x2"></i> Catégories
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
 
