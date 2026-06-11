@@ -136,7 +136,7 @@
                 <div class="d-flex align-items-center">
                    
                     <div class="ms-3">
-                        <p class="mb-0 small fw-bold">{{ user.username|default:"User connect" }}</p>
+                        <p class="mb-0 small fw-bold">{{ user.full_name|default:"user.phone_number" }}</p>
                         <a href="{% url 'logout' %}" class="text-danger small text-decoration-none">Déconnexion</a>
                     </div>
                 </div>

@@ -28,6 +28,12 @@ class User(AbstractUser):
         """Vérifie si l'user est un superviseur"""
         return self.type_user == 'superviseur'
 
+    @property
+    def full_name(self):
+        """Retourne le nom complet de l'agent"""
+        full_name = self.get_full_name()
+        return full_name if full_name.strip() else self.phone_number
+
 class Agent(models.Model):
     superviseur = models.ForeignKey(
         User,
