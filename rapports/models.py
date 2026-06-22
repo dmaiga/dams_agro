@@ -41,18 +41,18 @@ class RapportJournalier(models.Model):
 class ParticipationAgent(models.Model):
 
     class NiveauImplication(models.IntegerChoices):
-        FAIBLE = 1, "Faible"
-        MOYENNE = 2, "Moyenne"
-        BONNE = 3, "Bonne"
-        TRES_BONNE = 4, "Très bonne"
-        EXCELLENTE = 5, "Excellente"
+        FAIBLE = 1, "1 - Faible"
+        MOYENNE = 2, "2 - Moyenne"
+        BONNE = 3, "3 - Bonne"
+        TRES_BONNE = 4, "4 - Très bonne"
+        EXCELLENTE = 5, "5 - Excellente"
 
     class NiveauMaitrise(models.IntegerChoices):
-        DEBUTANT = 1, "Débutant"
-        APPRENTISSAGE = 2, "En apprentissage"
-        AUTONOME = 3, "Autonome"
-        BONNE_MAITRISE = 4, "Bonne maîtrise"
-        EXPERT = 5, "Expert"
+        DEBUTANT = 1, "1 - Débutant"
+        APPRENTISSAGE = 2, "2 - En apprentissage"
+        AUTONOME = 3, "3 - Autonome"
+        BONNE_MAITRISE = 4, "4 - Bonne maîtrise"
+        EXPERT = 5, "5 - Expert"
 
     rapport = models.ForeignKey(
         RapportJournalier,

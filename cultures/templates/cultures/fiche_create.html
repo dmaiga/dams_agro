@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Nouvelle fiche culture{% endblock %}
+{% block content %}
+
+<div class="mb-4">
+    <h3 class="mb-1">Nouvelle fiche culture</h3>
+    <small class="text-muted">Renseignez la date de démarrage, la superficie et les cultures mises en place</small>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white"><h5 class="mb-0">Informations générales</h5></div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for field in form %}
+                <div class="col-12 col-md-{% if field.name == 'note' %}12{% else %}6{% endif %}">
+                    <label class="form-label fw-semibold">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                    {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Cultures &amp; intrants</h5>
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{% url 'culture_list_create' %}" target="_blank"
+               class="text-muted small text-decoration-none">
+                <i class="bi bi-question-circle"></i> Culture absente ?
+            </a>
+            <button type="button" id="add-form" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-plus-circle"></i> Ajouter une culture
+            </button>
+        </div>
+    </div>
+
+    {{ formset.management_form }}
+
+    <div id="besoins-container">
+        {% for besoin_form in formset %}
+        <div class="besoin-form card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                {% for hidden in besoin_form.hidden_fields %}{{ hidden }}{% endfor %}
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold">{{ besoin_form.culture.label }}</label>
+                        {{ besoin_form.culture }}
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <label class="form-label fw-semibold">{{ besoin_form.semence_quantite.label }}</label>
+                        {{ besoin_form.semence_quantite }}
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <label class="form-label fw-semibold">{{ besoin_form.semence_unite.label }}</label>
+                        {{ besoin_form.semence_unite }}
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold">{{ besoin_form.rendement_estime.label }}</label>
+                        <div class="input-group">
+                            {{ besoin_form.rendement_estime }}
+                            <span class="input-group-text text-muted small">t/ha</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">{{ besoin_form.engrais.label }}</label>
+                        {{ besoin_form.engrais }}
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">{{ besoin_form.produit_phyto.label }}</label>
+                        {{ besoin_form.produit_phyto }}
+                    </div>
+                    {% if besoin_form.instance.pk %}
+                    <div class="col-12 form-check ms-2">
+                        {{ besoin_form.DELETE }}
+                        <label class="form-check-label text-danger">Supprimer cette ligne</label>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="d-grid mt-4">
+        <button type="submit" class="btn btn-success btn-lg">
+            <i class="bi bi-check-circle"></i> Enregistrer la fiche
+        </button>
+    </div>
+</form>
+
+<div id="empty-form-template" class="d-none">
+    <div class="besoin-form card shadow-sm border-0 mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">{{ formset.empty_form.culture.label }}</label>
+                    {{ formset.empty_form.culture }}
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold">{{ formset.empty_form.semence_quantite.label }}</label>
+                    {{ formset.empty_form.semence_quantite }}
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold">{{ formset.empty_form.semence_unite.label }}</label>
+                    {{ formset.empty_form.semence_unite }}
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">{{ formset.empty_form.rendement_estime.label }}</label>
+                    <div class="input-group">
+                        {{ formset.empty_form.rendement_estime }}
+                        <span class="input-group-text text-muted small">t/ha</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">{{ formset.empty_form.engrais.label }}</label>
+                    {{ formset.empty_form.engrais }}
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">{{ formset.empty_form.produit_phyto.label }}</label>
+                    {{ formset.empty_form.produit_phyto }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const addBtn = document.getElementById("add-form");
+    const container = document.getElementById("besoins-container");
+    const template = document.getElementById("empty-form-template").innerHTML;
+    const totalForms = document.getElementById("id_besoins-TOTAL_FORMS");
+
+    addBtn.addEventListener("click", function () {
+        const index = parseInt(totalForms.value, 10);
+        const html = template.replace(/__prefix__/g, index);
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = html;
+        container.appendChild(wrapper.firstElementChild);
+        totalForms.value = index + 1;
+    });
+})();
+</script>
+
+{% endblock %}

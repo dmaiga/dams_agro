@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'users',
     'finance',
     'rapports',
+    'cultures',
 ]
 
 MIDDLEWARE = [
@@ -152,10 +153,10 @@ LOGIN_URL = 'login'
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-fr'
+TIME_ZONE = 'Africa/Bamako'
 
-TIME_ZONE = 'UTC'
-
+ 
 USE_I18N = True
 
 USE_TZ = True

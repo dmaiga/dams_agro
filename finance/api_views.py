@@ -1,11 +1,12 @@
 from datetime import timedelta
+from decimal import Decimal
 from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from finance.models import Categorie, Operation, Produit, ProductionAgent
+from finance.models import Categorie, Operation, Produit, ProductionAgent, ParametreFinancier
 from finance.serializers import AgentPerformanceSerializer, CategorieSerializer, OperationDetailSerializer, OperationSerializer, ProduitSerializer
 
 class DateFilterMixin:
@@ -71,11 +72,20 @@ class DashboardAPIView(DateFilterMixin,APIView):
                 'stock'
             ]
         )
+        parametre = ParametreFinancier.get_solo()
+        ajustement = parametre.solde_ajuster or Decimal('0')
+
+        # Ce que le responsable financier a réellement en poche :
+        # solde = revenus - dépenses + ajustement (+/-)
+        solde = revenus - depenses + ajustement
+
         return Response({
             'revenus': revenus,
             'depenses': depenses,
-            'resultat':
-                revenus - depenses,
+            'solde': solde,
+            'ajustement_solde': ajustement,
+            # Calcul brut sans ajustement, conservé pour réconciliation.
+            'resultat': revenus - depenses,
             'nombre_operations':
                 qs.count(),
             'nombre_produits':

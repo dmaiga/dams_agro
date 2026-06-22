@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Fiche culture — {{ fiche.saison_label }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-1">{{ fiche.saison_label }}</h3>
+        <small class="text-muted">
+            {{ fiche.superficie_ha }} ha ·
+            démarré le {{ fiche.date_debut }} ·
+            par {{ fiche.technicien.get_full_name|default:fiche.technicien.phone_number }}
+        </small>
+    </div>
+    <a href="{% url 'fiche_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+
+{% if fiche.note %}
+<div class="alert alert-light border mb-4">{{ fiche.note|linebreaks }}</div>
+{% endif %}
+
+{% for besoin in fiche.besoins.all %}
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ besoin.culture }}</h5>
+        {% if not besoin.rendement_reel %}
+        <a href="{% url 'saisir_rendement' besoin.pk %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-pencil"></i> Saisir rendement obtenu
+        </a>
+        {% else %}
+        <a href="{% url 'saisir_rendement' besoin.pk %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-pencil"></i> Modifier
+        </a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <small class="text-muted d-block">Semences fournies</small>
+                <strong>{{ besoin.semence_quantite|default:"—" }} {{ besoin.semence_unite }}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">Objectif de rendement</small>
+                <strong>{{ besoin.rendement_estime|default:"—" }} {{ besoin.unite_rendement }}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">Rendement obtenu</small>
+                {% if besoin.rendement_reel is not None %}
+                    <strong>{{ besoin.rendement_reel }} {{ besoin.unite_rendement }}</strong>
+                    {% if besoin.ecart_pct is not None %}
+                        <span class="ms-1 badge {% if besoin.ecart_pct >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if besoin.ecart_pct >= 0 %}+{% endif %}{{ besoin.ecart_pct|floatformat:1 }} %
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">En attente</span>
+                {% endif %}
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">Durée du cycle</small>
+                {% if besoin.duree_cycle_jours is not None %}
+                    <strong>{{ besoin.duree_cycle_jours }} jours</strong>
+                    <br><small class="text-muted">récolté le {{ besoin.date_recolte }}</small>
+                {% else %}
+                    <span class="text-muted">—</span>
+                {% endif %}
+            </div>
+            {% if besoin.engrais %}
+            <div class="col-md-6">
+                <small class="text-muted d-block">Engrais fournis</small>
+                {{ besoin.engrais|linebreaks }}
+            </div>
+            {% endif %}
+            {% if besoin.produit_phyto %}
+            <div class="col-md-6">
+                <small class="text-muted d-block">Produits phytosanitaires</small>
+                {{ besoin.produit_phyto|linebreaks }}
+            </div>
+            {% endif %}
+        </div>
+        {% if besoin.observation_direction %}
+        <div class="mt-3 p-2 bg-light rounded">
+            <small class="text-muted d-block mb-1"><i class="bi bi-chat-left-text"></i> Observation</small>
+            {{ besoin.observation_direction|linebreaks }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info">Aucune culture sur cette fiche.</div>
+{% endfor %}
+
+{% endblock %}

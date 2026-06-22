@@ -39,6 +39,53 @@ class Categorie(models.Model):
     def __str__(self):
         return self.nom
     
+class ParametreFinancier(models.Model):
+    """
+    Paramètres financiers globaux (modèle singleton).
+
+    Permet au responsable financier / superuser d'ajuster manuellement
+    le solde via l'admin. Quand `solde_ajuster` est renseigné, c'est cette
+    valeur qui est exposée au lieu du calcul naïf (revenus - dépenses).
+    """
+
+    solde_ajuster = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=Decimal("0"),
+        verbose_name="Ajustement du solde",
+        help_text=(
+            "Montant (+/-) ajouté au solde calculé. "
+            "Solde exposé = revenus - dépenses + ajustement."
+        )
+    )
+
+    note = models.TextField(
+        blank=True,
+        help_text="Raison / justification de l'ajustement."
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        verbose_name = "Paramètre financier"
+        verbose_name_plural = "Paramètres financiers"
+
+    def __str__(self):
+        return "Paramètres financiers"
+
+    def save(self, *args, **kwargs):
+        # Force le singleton : toujours pk=1
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class Operation(models.Model):
     TYPE_CHOICES = (
         ('', 'Sélectionner un type'),

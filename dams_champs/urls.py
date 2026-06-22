@@ -20,6 +20,11 @@ from django.urls import path, include
 from users.views import login_view
 from finance.api_views import *
 from rapports.api_views import *
+from cultures.api_views import (
+    FicheCultureListAPIView,
+    FicheCultureDetailAPIView,
+    BaseConnaissancesAPIView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls ),
@@ -27,6 +32,7 @@ urlpatterns = [
     path('users/', include('users.urls') ),
     path('finance/', include('finance.urls')),
     path('rapports/', include('rapports.urls')),
+    path('cultures/', include('cultures.urls')),
 
     path(
         'api/dashboard/',
@@ -74,9 +80,18 @@ urlpatterns = [
     path(
         "api/superviseurs/",
         SuperviseurListAPIView.as_view(),
-        ),
+    ),
 
-
-
-
+    path(
+        "api/cultures/",
+        FicheCultureListAPIView.as_view(),
+    ),
+    path(
+        "api/cultures/connaissances/",
+        BaseConnaissancesAPIView.as_view(),
+    ),
+    path(
+        "api/cultures/<int:pk>/",
+        FicheCultureDetailAPIView.as_view(),
+    ),
 ]

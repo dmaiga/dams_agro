@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Mon historique{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-1">Mon historique</h3>
+        <small class="text-muted">
+            Objectif vs rendement obtenu par culture — vos cycles avec données complètes
+        </small>
+    </div>
+    <a href="{% url 'fiche_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Culture</th>
+                    <th>Cycles complétés</th>
+                    <th>Moy. objectif</th>
+                    <th>Moy. obtenu</th>
+                    <th>Précision</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in lignes %}
+                <tr>
+                    <td><strong>{{ l.culture }}</strong></td>
+                    <td>{{ l.nb_cycles }} cycle{{ l.nb_cycles|pluralize }}</td>
+                    <td>
+                        {% if l.moy_estime %}
+                            {{ l.moy_estime|floatformat:2 }} {{ l.unite }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ l.moy_reel|floatformat:2 }} {{ l.unite }}</td>
+                    <td>
+                        {% if l.ecart_pct is not None %}
+                            <span class="badge {% if l.ecart_pct >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if l.ecart_pct >= 0 %}+{% endif %}{{ l.ecart_pct|floatformat:1 }} %
+                            </span>
+                            <small class="text-muted ms-1">
+                                {% if l.ecart_pct >= 0 %}au-dessus de l'objectif{% else %}sous l'objectif{% endif %}
+                            </small>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-5">
+                        <i class="bi bi-graph-up fs-3 d-block mb-2 opacity-25"></i>
+                        Pas encore de cycle complété avec rendement renseigné.<br>
+                        <small>Revenez après votre première récolte.</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

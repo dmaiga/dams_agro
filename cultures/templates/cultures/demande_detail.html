@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Détail demande{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-1">{{ demande.titre }}</h3>
+        <small class="text-muted">
+            {{ demande.saison }} · {{ demande.superficie_ha }} ha ·
+            {{ demande.get_statut_display }} · par {{ demande.technicien.full_name }}
+        </small>
+    </div>
+    <a href="{% url 'demande_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+
+{% if demande.note %}
+<div class="alert alert-light border">{{ demande.note|linebreaks }}</div>
+{% endif %}
+
+{% for besoin in demande.besoins.all %}
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ besoin.culture }}</h5>
+        <a href="{% url 'saisir_rendement' besoin.pk %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-pencil"></i> Saisir rendement réel
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <small class="text-muted d-block">Semences</small>
+                <strong>{{ besoin.semence_quantite|default:"-" }} {{ besoin.semence_unite }}</strong>
+            </div>
+            <div class="col-md-6">
+                <small class="text-muted d-block">Engrais</small>
+                {{ besoin.engrais|default:"-"|linebreaks }}
+            </div>
+            <div class="col-md-6">
+                <small class="text-muted d-block">Phytosanitaires</small>
+                {{ besoin.produit_phyto|default:"-"|linebreaks }}
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">Rendement estimé</small>
+                <strong>{{ besoin.rendement_estime|default:"-" }} {{ besoin.unite_rendement }}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">Rendement réel</small>
+                {% if besoin.rendement_reel is not None %}
+                    <strong>{{ besoin.rendement_reel }} {{ besoin.unite_rendement }}</strong>
+                    {% if besoin.ecart_pct is not None %}
+                        <span class="badge {% if besoin.ecart_pct >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ besoin.ecart_pct|floatformat:1 }} %
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">En attente</span>
+                {% endif %}
+            </div>
+        </div>
+        {% if besoin.observation_direction %}
+        <div class="mt-3">
+            <small class="text-muted d-block">Observation</small>
+            {{ besoin.observation_direction|linebreaks }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info">Aucune culture sur cette demande.</div>
+{% endfor %}
+
+{% endblock %}
