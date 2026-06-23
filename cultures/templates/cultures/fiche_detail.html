@@ -2,7 +2,7 @@
 {% block title %}Fiche culture — {{ fiche.saison_label }}{% endblock %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
     <div>
         <h3 class="mb-1">{{ fiche.saison_label }}</h3>
         <small class="text-muted">
@@ -11,7 +11,7 @@
             par {{ fiche.technicien.get_full_name|default:fiche.technicien.phone_number }}
         </small>
     </div>
-    <a href="{% url 'fiche_list' %}" class="btn btn-outline-secondary btn-sm">
+    <a href="{% url 'fiche_list' %}" class="btn btn-outline-secondary btn-sm flex-shrink-0">
         <i class="bi bi-arrow-left"></i> Retour
     </a>
 </div>
@@ -22,68 +22,198 @@
 
 {% for besoin in fiche.besoins.all %}
 <div class="card shadow-sm border-0 mb-3">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">{{ besoin.culture }}</h5>
-        {% if not besoin.rendement_reel %}
-        <a href="{% url 'saisir_rendement' besoin.pk %}" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-pencil"></i> Saisir rendement obtenu
-        </a>
-        {% else %}
-        <a href="{% url 'saisir_rendement' besoin.pk %}" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-pencil"></i> Modifier
-        </a>
-        {% endif %}
+    <div class="card-header bg-white">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <h5 class="mb-0">{{ besoin.culture }}</h5>
+                {% if besoin.recolte_cloturee %}
+                <span class="badge bg-success">Clôturée</span>
+                {% endif %}
+            </div>
+            {% if not besoin.recolte_cloturee %}
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'ajouter_passage' besoin.pk %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-circle"></i> Passage
+                </a>
+                {% if besoin.passages_recolte.all %}
+                <a href="{% url 'cloturer_recolte' besoin.pk %}" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-lock"></i> Clôturer
+                </a>
+                {% endif %}
+            </div>
+            {% else %}
+            <a href="{% url 'rapport_culture_create' besoin.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-file-text"></i>
+                {% if besoin.rapport_culture %}Rapport{% else %}Rédiger rapport{% endif %}
+            </a>
+            {% endif %}
+        </div>
     </div>
     <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <small class="text-muted d-block">Semences fournies</small>
+        <div class="row g-3 mb-3">
+            <div class="col-6 col-md-3">
+                <small class="text-muted d-block">Semences</small>
                 <strong>{{ besoin.semence_quantite|default:"—" }} {{ besoin.semence_unite }}</strong>
             </div>
-            <div class="col-md-3">
-                <small class="text-muted d-block">Objectif de rendement</small>
+            <div class="col-6 col-md-3">
+                <small class="text-muted d-block">Objectif</small>
                 <strong>{{ besoin.rendement_estime|default:"—" }} {{ besoin.unite_rendement }}</strong>
             </div>
-            <div class="col-md-3">
-                <small class="text-muted d-block">Rendement obtenu</small>
-                {% if besoin.rendement_reel is not None %}
+            <div class="col-6 col-md-3">
+                <small class="text-muted d-block">Rendement</small>
+                {% if besoin.recolte_cloturee %}
                     <strong>{{ besoin.rendement_reel }} {{ besoin.unite_rendement }}</strong>
                     {% if besoin.ecart_pct is not None %}
-                        <span class="ms-1 badge {% if besoin.ecart_pct >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                        <span class="badge {% if besoin.ecart_pct >= 0 %}bg-success{% else %}bg-danger{% endif %}">
                             {% if besoin.ecart_pct >= 0 %}+{% endif %}{{ besoin.ecart_pct|floatformat:1 }} %
                         </span>
                     {% endif %}
+                {% elif besoin.passages_recolte.all %}
+                    <span class="text-warning fw-semibold">{{ besoin.total_passages }} {{ besoin.unite_rendement }}</span>
+                    <br><small class="text-muted">en cours</small>
                 {% else %}
                     <span class="text-muted">En attente</span>
                 {% endif %}
             </div>
-            <div class="col-md-3">
-                <small class="text-muted d-block">Durée du cycle</small>
+            <div class="col-6 col-md-3">
+                <small class="text-muted d-block">Durée cycle</small>
                 {% if besoin.duree_cycle_jours is not None %}
-                    <strong>{{ besoin.duree_cycle_jours }} jours</strong>
-                    <br><small class="text-muted">récolté le {{ besoin.date_recolte }}</small>
+                    <strong>{{ besoin.duree_cycle_jours }} j</strong>
+                    <br><small class="text-muted">clôturé {{ besoin.date_recolte }}</small>
                 {% else %}
                     <span class="text-muted">—</span>
                 {% endif %}
             </div>
             {% if besoin.engrais %}
-            <div class="col-md-6">
+            <div class="col-12 col-md-6">
                 <small class="text-muted d-block">Engrais fournis</small>
                 {{ besoin.engrais|linebreaks }}
             </div>
             {% endif %}
             {% if besoin.produit_phyto %}
-            <div class="col-md-6">
+            <div class="col-12 col-md-6">
                 <small class="text-muted d-block">Produits phytosanitaires</small>
                 {{ besoin.produit_phyto|linebreaks }}
             </div>
             {% endif %}
         </div>
+
+        {% if besoin.passages_recolte.all %}
+        <div class="mt-2">
+            <small class="text-muted fw-semibold d-block mb-1">
+                <i class="bi bi-calendar2-check"></i>
+                Passages ({{ besoin.passages_recolte.all|length }})
+            </small>
+            <div class="table-responsive">
+                <table class="table table-sm table-borderless mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Quantité</th>
+                            <th class="d-none d-sm-table-cell">Observation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in besoin.passages_recolte.all %}
+                        <tr>
+                            <td>{{ p.date_passage }}</td>
+                            <td><strong>{{ p.quantite }} {{ besoin.unite_rendement }}</strong></td>
+                            <td class="d-none d-sm-table-cell text-muted">{{ p.observation|default:"—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
         {% if besoin.observation_direction %}
         <div class="mt-3 p-2 bg-light rounded">
             <small class="text-muted d-block mb-1"><i class="bi bi-chat-left-text"></i> Observation</small>
             {{ besoin.observation_direction|linebreaks }}
         </div>
+        {% endif %}
+
+        {# ── Rapport de clôture ── #}
+        {% if besoin.recolte_cloturee %}
+            {% with rapport=besoin.rapport_culture %}
+            {% if rapport %}
+            <div class="mt-3">
+                <small class="text-muted fw-semibold d-block mb-2">
+                    <i class="bi bi-clipboard2-check"></i> Rapport de clôture
+                </small>
+                {% if rapport.bilan_activites %}
+                <div class="mb-2">
+                    <small class="text-muted">Bilan des activités</small>
+                    <div class="ps-2 border-start border-2">{{ rapport.bilan_activites|linebreaks }}</div>
+                </div>
+                {% endif %}
+                {% if rapport.problemes %}
+                <div class="mb-2">
+                    <small class="text-muted">Difficultés</small>
+                    <div class="ps-2 border-start border-2">{{ rapport.problemes|linebreaks }}</div>
+                </div>
+                {% endif %}
+                {% if rapport.solutions %}
+                <div class="mb-2">
+                    <small class="text-muted">Solutions</small>
+                    <div class="ps-2 border-start border-2">{{ rapport.solutions|linebreaks }}</div>
+                </div>
+                {% endif %}
+                {% if rapport.resultats %}
+                <div class="mb-2">
+                    <small class="text-muted">Résultats</small>
+                    <div class="ps-2 border-start border-2">{{ rapport.resultats|linebreaks }}</div>
+                </div>
+                {% endif %}
+                {% if rapport.perspectives %}
+                <div class="mb-2">
+                    <small class="text-muted">Perspectives</small>
+                    <div class="ps-2 border-start border-2">{{ rapport.perspectives|linebreaks }}</div>
+                </div>
+                {% endif %}
+                {% if rapport.participations.all %}
+                <div class="mt-2">
+                    <small class="text-muted fw-semibold d-block mb-1">
+                        <i class="bi bi-people"></i> Agents ({{ rapport.participations.all|length }})
+                    </small>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>Implication</th>
+                                    <th class="d-none d-sm-table-cell">Maîtrise</th>
+                                    <th class="d-none d-md-table-cell">Observation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in rapport.participations.all %}
+                                <tr>
+                                    <td>{{ p.agent }}</td>
+                                    <td>{{ p.get_implication_display }}</td>
+                                    <td class="d-none d-sm-table-cell">{{ p.get_maitrise_display }}</td>
+                                    <td class="d-none d-md-table-cell text-muted">{{ p.observation|default:"—" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="mt-3 d-flex flex-wrap align-items-center gap-2">
+                <span class="badge bg-warning text-dark">
+                    <i class="bi bi-exclamation-triangle"></i> Rapport manquant
+                </span>
+                <a href="{% url 'rapport_culture_create' besoin.pk %}"
+                   class="btn btn-sm btn-outline-warning">
+                    Rédiger le rapport
+                </a>
+            </div>
+            {% endif %}
+            {% endwith %}
         {% endif %}
     </div>
 </div>

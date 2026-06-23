@@ -12,7 +12,7 @@ Chaque cycle est historisé de la mise en terre à la récolte.
 
 | Acteur            | Dans dams_agro                                                   | Dans dams (lecture) |
 |-------------------|------------------------------------------------------------------|---------------------|
-| Agent de la ferme | Crée les fiches, saisit les intrants, enregistre les rendements  | —                   |
+| Agent de la ferme | Crée les fiches, saisit les intrants, enregistre les récoltes    | —                   |
 | Direction         | Aucune vue dédiée                                                | GET + analyse via API |
 
 Pas de workflow d'approbation. Toute saisie est terrain, y compris a posteriori.
@@ -66,22 +66,95 @@ Les agents ajoutent de nouvelles cultures via `/cultures/types/`.
 | `produit_phyto`    | TextField    | Texte libre                     |
 | `rendement_estime` | DecimalField | Objectif au démarrage — null/blank |
 
-#### Phase résultat (après récolte)
+#### Phase résultat (récolte échelonnée — sprint 05)
 
-| Champ                   | Type         | Notes                      |
-|-------------------------|--------------|----------------------------|
-| `rendement_reel`        | DecimalField | Rendement obtenu — null/blank |
-| `date_recolte`          | DateField    | null/blank                 |
-| `observation_direction` | TextField    | Annotation pour l'analyse  |
+| Champ                   | Type         | Notes                                                          |
+|-------------------------|--------------|----------------------------------------------------------------|
+| `rendement_reel`        | DecimalField | Figé à la clôture = `total_passages()`. null/blank avant clôture |
+| `date_recolte`          | DateField    | Fixé automatiquement à `date.today()` lors de la clôture      |
+| `recolte_cloturee`      | BooleanField | Default False. True = récolte terminée, plus de passage possible |
+| `observation_direction` | TextField    | Annotation saisie lors de la clôture                          |
 
 #### Propriétés calculées (non stockées)
 
 | Propriété           | Formule                                              |
 |---------------------|------------------------------------------------------|
 | `unite_rendement`   | `culture.unite_rendement`                            |
-| `duree_cycle_jours` | `date_recolte - fiche.date_debut` (None si pas récolté) |
+| `duree_cycle_jours` | `date_recolte - fiche.date_debut` (None si pas clôturé) |
 | `ecart_rendement`   | `rendement_reel - rendement_estime`                  |
 | `ecart_pct`         | `(reel - estime) / estime * 100`                     |
+| `total_passages()`  | `Sum("passages_recolte__quantite")` — total en cours avant clôture |
+
+---
+
+### `RapportCulture` — bilan de fin de cycle (sprint 06)
+
+**OneToOne :** `besoin` → `BesoinCulture` (`related_name="rapport_culture"`)
+
+| Champ             | Type         | Notes                                      |
+|-------------------|--------------|--------------------------------------------|
+| `bilan_activites` | TextField    | Résumé des travaux effectués               |
+| `problemes`       | TextField    | Difficultés rencontrées                    |
+| `solutions`       | TextField    | Solutions appliquées                       |
+| `resultats`       | TextField    | Résultats obtenus                          |
+| `perspectives`    | TextField    | Perspectives pour le prochain cycle        |
+| `created_at`      | DateTimeField| Auto                                       |
+
+Créé via `get_or_create` — modifiable après la clôture.
+
+---
+
+### `ParticipationCulture` — évaluation d'un agent sur un cycle (sprint 06)
+
+**FK :** `rapport` → `RapportCulture` (`related_name="participations"`)
+
+| Champ        | Type                   | Notes                                              |
+|--------------|------------------------|----------------------------------------------------|
+| `agent`      | FK Agent               | `related_name="participations_culture"`            |
+| `implication`| PositiveSmallIntegerField | Choices : 1 Faible … 5 Excellente              |
+| `maitrise`   | PositiveSmallIntegerField | Choices : 1 Débutant … 5 Expert                |
+| `observation`| CharField(255)         | blank=True                                         |
+
+`unique_together = ("rapport", "agent")` — un agent une seule fois par rapport.
+
+**Choices NiveauImplication / NiveauMaitrise** : mêmes labels que `rapports.ParticipationAgent`.
+
+---
+
+### `PassageRecolte` — un passage de récolte (sprint 05)
+
+**FK :** `besoin` → `BesoinCulture` (`related_name="passages_recolte"`)
+
+| Champ          | Type         | Notes                              |
+|----------------|--------------|------------------------------------|
+| `date_passage` | DateField    | Date du passage de récolte         |
+| `quantite`     | DecimalField | Quantité récoltée ce jour          |
+| `observation`  | CharField    | max_length=255, blank=True         |
+| `created_at`   | DateTimeField| Auto                               |
+
+Ordonné par `date_passage`. Interdit d'ajout si `besoin.recolte_cloturee=True`.
+
+---
+
+## Workflow récolte échelonnée
+
+```
+fiche_detail
+  └─ BesoinCulture
+       ├─ [Bouton] "Passage de récolte" → ajouter_passage (GET/POST)
+       │    Form : date_passage + quantite + observation
+       │    Guard : si recolte_cloturee → redirect avec warning
+       │
+       ├─ Liste des passages (date, quantité, obs) + total en cours
+       │
+       └─ [Bouton] "Clôturer" → cloturer_recolte (GET/POST)
+            Visible uniquement si recolte_cloturee=False et passages >= 1
+            GET : récapitulatif passages + total + champ observation
+            POST : rendement_reel = total_passages()
+                   date_recolte = date.today()
+                   recolte_cloturee = True
+                   → redirect fiche_detail
+```
 
 ---
 
@@ -91,7 +164,7 @@ Dans `fiche_list`, le queryset est annoté par le moteur SQL :
 ```python
 .annotate(
     nb_cultures=Count("besoins"),
-    nb_recoltes=Count("besoins", filter=Q(besoins__date_recolte__isnull=False)),
+    nb_recoltes=Count("besoins", filter=Q(besoins__recolte_cloturee=True)),
 )
 ```
 
@@ -106,29 +179,35 @@ Dans `fiche_list`, le queryset est annoté par le moteur SQL :
 
 ## Formulaires
 
-| Formulaire             | Champs                                              |
-|------------------------|-----------------------------------------------------|
-| `CultureForm`          | `nom`, `unite_rendement`                            |
-| `FicheCultureForm`     | `date_debut`, `superficie_ha`, `note`               |
-| `BesoinCultureForm`    | `culture`, `semence_*`, `engrais`, `produit_phyto`, `rendement_estime` |
-| `BesoinCultureFormSet` | `inlineformset_factory(FicheCulture, BesoinCulture, fk_name="fiche", extra=1, can_delete=True)` |
-| `SuiviRendementForm`   | `rendement_reel`, `date_recolte`, `observation_direction` |
+| Formulaire                    | Champs / notes                                                                  |
+|-------------------------------|---------------------------------------------------------------------------------|
+| `CultureForm`                 | `nom`, `unite_rendement`                                                        |
+| `FicheCultureForm`            | `date_debut`, `superficie_ha`, `note`                                           |
+| `BesoinCultureForm`           | `culture`, `semence_*`, `engrais`, `produit_phyto`, `rendement_estime`          |
+| `BesoinCultureFormSet`        | `inlineformset_factory(FicheCulture, BesoinCulture, extra=1, can_delete=True)`  |
+| `SuiviRendementForm`          | Conservé (non utilisé dans le flux principal — saisie directe obsolète)         |
+| `PassageRecolteForm`          | `date_passage`, `quantite`, `observation`                                       |
+| `RapportCultureForm`          | `bilan_activites`, `problemes`, `solutions`, `resultats`, `perspectives`        |
+| `ParticipationCultureForm`    | `agent`, `implication`, `maitrise`, `observation`                               |
+| `ParticipationCultureFormSet` | `inlineformset_factory(RapportCulture, ParticipationCulture, extra=1, can_delete=True)` |
 
 ---
 
 ## Vues web
 
-| Vue                   | URL                                       | Description                              |
-|-----------------------|-------------------------------------------|------------------------------------------|
-| `fiche_list`          | `GET /cultures/`                          | Liste avec badge avancement              |
-| `fiche_create`        | `GET/POST /cultures/nouvelle/`            | Création + formset dynamique JS          |
-| `fiche_detail`        | `GET /cultures/<pk>/`                     | Détail + durée cycle + écart % par culture |
-| `saisir_rendement`    | `GET/POST /cultures/besoin/<pk>/rendement/` | Saisie rendement obtenu               |
-| `culture_list_create` | `GET/POST /cultures/types/`               | Référentiel cultures — liste + ajout     |
-| `base_connaissances`  | `GET /cultures/connaissances/`            | Historique filtré `fiche__technicien=request.user` |
+| Vue                      | URL                                          | Description                                                   |
+|--------------------------|----------------------------------------------|---------------------------------------------------------------|
+| `fiche_list`             | `GET /cultures/`                             | Liste avec badge avancement (recolte_cloturee)                |
+| `fiche_create`           | `GET/POST /cultures/nouvelle/`               | Création + formset dynamique JS                               |
+| `fiche_detail`           | `GET /cultures/<pk>/`                        | Détail + passages + rapport + badge "Rapport manquant"        |
+| `ajouter_passage`        | `GET/POST /cultures/besoin/<pk>/passage/`    | Enregistre un passage (date + quantité)                       |
+| `cloturer_recolte`       | `GET/POST /cultures/besoin/<pk>/cloturer/`   | Clôture → redirect vers `rapport_culture_create`              |
+| `rapport_culture_create` | `GET/POST /cultures/besoin/<pk>/rapport/`    | Bilan de clôture + évaluation agents (get_or_create)          |
+| `saisir_rendement`       | `GET /cultures/besoin/<pk>/rendement/`       | Redirect 302 vers `cloturer_recolte` (compat URL)             |
+| `culture_list_create`    | `GET/POST /cultures/types/`                  | Référentiel cultures — liste + ajout                          |
+| `base_connaissances`     | `GET /cultures/connaissances/`               | Stats globales tous agents : rendements + évaluations         |
 
-> `base_connaissances` est filtré par agent connecté.
-> L'agrégat global multi-agents est réservé à l'API `/api/cultures/connaissances/`.
+> `base_connaissances` est **global** (tous agents). Filtre user supprimé en sprint-06.
 
 ---
 
@@ -146,16 +225,41 @@ Dans `fiche_list`, le queryset est annoté par le moteur SQL :
 
 **Sérialiseur :** `FicheCultureSerializer` — expose `saison_label`, `nb_cultures`, `besoins` imbriqués.
 
-**BesoinCultureSerializer** expose : `ecart_rendement`, `ecart_pct`, `duree_cycle_jours`, `unite_rendement`.
-Le champ `observation` mappe vers `observation_direction`.
+**`BesoinCultureSerializer`** expose :
+- `ecart_rendement`, `ecart_pct`, `duree_cycle_jours`, `unite_rendement`
+- `recolte_cloturee` (bool)
+- `passages_recolte` → liste de `PassageRecolteSerializer`
+- `rapport_culture` → `RapportCultureSerializer` (bilan + participations imbriquées)
+- `observation` mappe vers `observation_direction`
+
+**`RapportCultureSerializer`** expose : tous les champs texte + `participations` (liste de `ParticipationCultureSerializer`).
+
+**`ParticipationCultureSerializer`** expose : `agent_prenom`, `agent_nom`, `implication_display`, `maitrise_display`, `observation`.
 
 ### `GET /api/cultures/<pk>/`
 
-Détail complet d'une fiche.
+Détail complet d'une fiche — prefetch `besoins__passages_recolte`.
+
+### `GET /api/cultures/rapports/`
+
+Liste paginée de tous les `RapportCulture` — pour la direction (`dams`).
+
+| Paramètre     | Exemple             | Description                          |
+|---------------|---------------------|--------------------------------------|
+| `culture`     | `?culture=Maïs`     | Filtre `besoin__culture__nom__icontains` |
+| `technicien`  | `?technicien=3`     | Filtre par technicien de la fiche    |
+
+**Sérialiseur :** `RapportCultureListSerializer` — expose `culture_nom`, `saison_label`,
+`rendement_reel`, `bilan_activites`, `problemes`, `solutions`, `resultats`, `perspectives`,
+`technicien_id`, `participations` (agents avec implication/maîtrise).
 
 ### `GET /api/cultures/connaissances/`
 
-Agrégat global (tous agents). Ne retourne que les cultures avec `rendement_reel` renseigné.
+Agrégat global (tous agents). Retourne par culture :
+- Rendements (`nb_campagnes`, `moy_estime`, `moy_reel`, `ecart_pct`)
+- `agents` : liste des agents avec `moy_implication`, `moy_maitrise`, `nb_cycles`
+
+Les cultures sans rendement mais avec participations apparaissent également (union des deux ensembles).
 
 ---
 
@@ -180,7 +284,14 @@ python manage.py seed_cultures --reset  # Efface les fiches existantes et recré
 ## Règles métier
 
 1. `engrais` et `produit_phyto` sont en texte libre — structuration prévue en phase 4.
-2. `rendement_reel` est saisi par l'agent après récolte — aucune restriction de rôle.
-3. `Culture` est protégée à la suppression (PROTECT) si des `BesoinCulture` y font référence.
-4. La fiche peut être créée a posteriori : `date_debut` est un champ manuel.
-5. `saison_label` et `duree_cycle_jours` sont calculés à la volée — non stockés.
+2. `rendement_reel` est figé lors de la clôture (`total_passages()`) — ne pas modifier manuellement.
+3. `recolte_cloturee=True` bloque tout ajout de passage supplémentaire (guard dans `ajouter_passage`).
+4. `date_recolte` est fixé automatiquement à `date.today()` lors de la clôture — pas de saisie manuelle.
+5. La clôture exige au moins un passage enregistré (guard dans `cloturer_recolte`).
+6. `Culture` est protégée à la suppression (PROTECT) si des `BesoinCulture` y font référence.
+7. La fiche peut être créée a posteriori : `date_debut` est un champ manuel.
+8. `saison_label` et `duree_cycle_jours` sont calculés à la volée — non stockés.
+9. Données pré-sprint 05 : les `BesoinCulture` avec `rendement_reel` déjà renseigné restent valides ; `recolte_cloturee` restera False sauf clôture manuelle via admin.
+10. `RapportCulture` est créé via `get_or_create` — la page rapport est idempotente et modifiable.
+11. `ParticipationCulture` : un agent ne peut apparaître qu'une fois par rapport (`unique_together`). Le formset agents est restreint au superviseur connecté.
+12. `base_connaissances` est globale — tous agents, pas de filtre user. Différent de `fiche_list` qui affiche toutes les fiches sans filtre non plus.

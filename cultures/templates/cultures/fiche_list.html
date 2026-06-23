@@ -2,17 +2,17 @@
 {% block title %}Suivi des cultures{% endblock %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <div>
         <h3 class="mb-1">Suivi des cultures</h3>
         <small class="text-muted">Historique des cycles par agent</small>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         <a href="{% url 'culture_list_create' %}" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-flower1"></i> Gérer les cultures
         </a>
         <a href="{% url 'base_connaissances' %}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-graph-up"></i> Mon historique
+            <i class="bi bi-graph-up"></i> Base de connaissances
         </a>
         <a href="{% url 'fiche_create' %}" class="btn btn-success btn-sm">
             <i class="bi bi-plus-circle"></i> Nouvelle fiche
@@ -22,46 +22,59 @@
 
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>Période</th>
-                    <th>Superficie</th>
-                    <th>Agent</th>
-                    <th>Avancement</th>
-                    <th>Démarré le</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for fiche in fiches %}
-                <tr onclick="window.location='{% url 'fiche_detail' fiche.pk %}'" style="cursor:pointer">
-                    <td><strong>{{ fiche.saison_label }}</strong></td>
-                    <td>{{ fiche.superficie_ha }} ha</td>
-                    <td>{{ fiche.technicien.get_full_name|default:fiche.technicien.phone_number }}</td>
-                    <td>
-                        {% if fiche.nb_cultures == 0 %}
-                            <span class="text-muted">—</span>
-                        {% elif fiche.nb_recoltes == fiche.nb_cultures %}
-                            <span class="badge bg-success">
-                                <i class="bi bi-check-circle"></i> Terminée ({{ fiche.nb_cultures }}/{{ fiche.nb_cultures }})
-                            </span>
-                        {% elif fiche.nb_recoltes > 0 %}
-                            <span class="badge bg-warning text-dark">
-                                {{ fiche.nb_recoltes }}/{{ fiche.nb_cultures }} récoltée{{ fiche.nb_recoltes|pluralize }}
-                            </span>
-                        {% else %}
-                            <span class="badge bg-light text-secondary border">
-                                {{ fiche.nb_cultures }} culture{{ fiche.nb_cultures|pluralize }} · en cours
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td>{{ fiche.date_debut }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" class="text-center text-muted py-4">Aucune fiche enregistrée.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Période</th>
+                        <th class="d-none d-md-table-cell">Agent</th>
+                        <th>Avancement</th>
+                        <th class="d-none d-sm-table-cell">Superficie</th>
+                        <th class="d-none d-lg-table-cell">Démarré le</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fiche in fiches %}
+                    <tr onclick="window.location='{% url 'fiche_detail' fiche.pk %}'" style="cursor:pointer">
+                        <td>
+                            <strong>{{ fiche.saison_label }}</strong>
+                            <div class="d-md-none text-muted small">
+                                {{ fiche.technicien.get_full_name|default:fiche.technicien.phone_number }}
+                            </div>
+                        </td>
+                        <td class="d-none d-md-table-cell">
+                            {{ fiche.technicien.get_full_name|default:fiche.technicien.phone_number }}
+                        </td>
+                        <td>
+                            {% if fiche.nb_cultures == 0 %}
+                                <span class="text-muted">—</span>
+                            {% elif fiche.nb_recoltes == fiche.nb_cultures %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i>
+                                    <span class="d-none d-sm-inline">Terminée</span>
+                                    ({{ fiche.nb_cultures }}/{{ fiche.nb_cultures }})
+                                </span>
+                            {% elif fiche.nb_recoltes > 0 %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ fiche.nb_recoltes }}/{{ fiche.nb_cultures }}
+                                    <span class="d-none d-sm-inline">récoltée{{ fiche.nb_recoltes|pluralize }}</span>
+                                </span>
+                            {% else %}
+                                <span class="badge bg-light text-secondary border">
+                                    {{ fiche.nb_cultures }}
+                                    <span class="d-none d-sm-inline">culture{{ fiche.nb_cultures|pluralize }} · en cours</span>
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="d-none d-sm-table-cell">{{ fiche.superficie_ha }} ha</td>
+                        <td class="d-none d-lg-table-cell">{{ fiche.date_debut }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">Aucune fiche enregistrée.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

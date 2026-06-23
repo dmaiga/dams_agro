@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Passage de récolte — {{ besoin.culture }}{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div>
+        <h3 class="mb-1">Passage de récolte</h3>
+        <small class="text-muted">
+            {{ besoin.culture }} · {{ besoin.fiche.saison_label }} ·
+            objectif : {{ besoin.rendement_estime|default:"non renseigné" }} {{ besoin.unite_rendement }}
+        </small>
+    </div>
+    <a href="{% url 'fiche_detail' besoin.fiche.pk %}" class="btn btn-outline-secondary btn-sm flex-shrink-0">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+
+{% if besoin.passages_recolte.all %}
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0">Passages déjà enregistrés</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Quantité</th>
+                        <th class="d-none d-sm-table-cell">Observation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in besoin.passages_recolte.all %}
+                    <tr>
+                        <td>{{ p.date_passage }}</td>
+                        <td><strong>{{ p.quantite }} {{ besoin.unite_rendement }}</strong></td>
+                        <td class="d-none d-sm-table-cell text-muted">{{ p.observation|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td><strong>Total actuel</strong></td>
+                        <td colspan="2"><strong>{{ besoin.total_passages }} {{ besoin.unite_rendement }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white">
+            <h6 class="mb-0">Nouveau passage</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">{{ form.date_passage.label }}</label>
+                    {{ form.date_passage }}
+                    {% for e in form.date_passage.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">{{ form.quantite.label }}</label>
+                    <div class="input-group">
+                        {{ form.quantite }}
+                        <span class="input-group-text">{{ besoin.unite_rendement }}</span>
+                    </div>
+                    {% for e in form.quantite.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">{{ form.observation.label }}</label>
+                    {{ form.observation }}
+                    {% for e in form.observation.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-grid d-md-flex gap-2">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Enregistrer le passage
+        </button>
+        <a href="{% url 'fiche_detail' besoin.fiche.pk %}" class="btn btn-outline-secondary">Annuler</a>
+    </div>
+</form>
+
+{% endblock %}

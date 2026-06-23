@@ -24,6 +24,7 @@ from cultures.api_views import (
     FicheCultureListAPIView,
     FicheCultureDetailAPIView,
     BaseConnaissancesAPIView,
+    RapportCultureListAPIView,
 )
 
 urlpatterns = [
@@ -89,6 +90,10 @@ urlpatterns = [
     path(
         "api/cultures/connaissances/",
         BaseConnaissancesAPIView.as_view(),
+    ),
+    path(
+        "api/cultures/rapports/",
+        RapportCultureListAPIView.as_view(),
     ),
     path(
         "api/cultures/<int:pk>/",

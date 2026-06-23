@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Clôturer la récolte — {{ besoin.culture }}{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div>
+        <h3 class="mb-1">Clôturer la récolte</h3>
+        <small class="text-muted">
+            {{ besoin.culture }} · {{ besoin.fiche.saison_label }} ·
+            objectif : {{ besoin.rendement_estime|default:"non renseigné" }} {{ besoin.unite_rendement }}
+        </small>
+    </div>
+    <a href="{% url 'fiche_detail' besoin.fiche.pk %}" class="btn btn-outline-secondary btn-sm flex-shrink-0">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h6 class="mb-0">Récapitulatif des passages</h6>
+        <a href="{% url 'ajouter_passage' besoin.pk %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-plus"></i> Ajouter un passage
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Quantité récoltée</th>
+                        <th class="d-none d-sm-table-cell">Observation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in passages %}
+                    <tr>
+                        <td>{{ p.date_passage }}</td>
+                        <td><strong>{{ p.quantite }} {{ besoin.unite_rendement }}</strong></td>
+                        <td class="d-none d-sm-table-cell text-muted">{{ p.observation|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td><strong>Total définitif</strong></td>
+                        <td colspan="2">
+                            <strong class="fs-5">{{ total }} {{ besoin.unite_rendement }}</strong>
+                            {% if besoin.rendement_estime %}
+                            <span class="ms-2 text-muted small">objectif {{ besoin.rendement_estime }} {{ besoin.unite_rendement }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<form method="post" id="form-cloturer">
+    {% csrf_token %}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <label class="form-label fw-semibold">Observation (optionnel)</label>
+            <textarea name="observation_direction" class="form-control" rows="3"
+                placeholder="Remarques sur la récolte finale…">{{ besoin.observation_direction }}</textarea>
+        </div>
+    </div>
+
+    <div class="alert alert-warning d-flex align-items-start gap-2 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            Cette action est <strong>définitive</strong>. Le rendement total de
+            <strong>{{ total }} {{ besoin.unite_rendement }}</strong> sera enregistré
+            et aucun nouveau passage ne pourra être ajouté.
+            <br><small>Vous serez ensuite redirigé vers le rapport de clôture.</small>
+        </div>
+    </div>
+
+    <div class="d-grid d-md-flex gap-2">
+        <button type="button" class="btn btn-danger" onclick="confirmerCloture()">
+            <i class="bi bi-lock-fill"></i> Clôturer la récolte
+        </button>
+        <a href="{% url 'fiche_detail' besoin.fiche.pk %}" class="btn btn-outline-secondary">Annuler</a>
+    </div>
+</form>
+
+<script>
+function confirmerCloture() {
+    if (confirm("Confirmer la clôture ? Le rendement total de {{ total }} {{ besoin.unite_rendement }} sera définitivement enregistré.")) {
+        document.getElementById("form-cloturer").submit();
+    }
+}
+</script>
+
+{% endblock %}

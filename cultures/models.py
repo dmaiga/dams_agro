@@ -3,6 +3,9 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Sum
+
+from users.models import Agent
 
 
 MOIS_FR = [
@@ -108,9 +111,14 @@ class BesoinCulture(models.Model):
         max_digits=10, decimal_places=2, null=True, blank=True,
         verbose_name="Rendement obtenu"
     )
-    date_recolte = models.DateField(null=True, blank=True, verbose_name="Date de récolte")
+    date_recolte = models.DateField(null=True, blank=True, verbose_name="Date de clôture récolte")
     observation_direction = models.TextField(
         blank=True, verbose_name="Observation"
+    )
+    recolte_cloturee = models.BooleanField(
+        default=False,
+        verbose_name="Récolte clôturée",
+        help_text="Marqué vrai quand le technicien signale la fin de la récolte."
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -147,3 +155,97 @@ class BesoinCulture(models.Model):
             (self.rendement_reel - self.rendement_estime)
             / self.rendement_estime * Decimal("100")
         )
+
+    def total_passages(self):
+        """Somme des quantités de tous les passages de récolte enregistrés."""
+        total = self.passages_recolte.aggregate(total=Sum("quantite"))["total"]
+        return total or Decimal("0")
+
+
+class PassageRecolte(models.Model):
+    """Un passage de récolte sur un besoin : date et quantité récoltée ce jour."""
+
+    besoin = models.ForeignKey(
+        BesoinCulture,
+        on_delete=models.CASCADE,
+        related_name="passages_recolte"
+    )
+    date_passage = models.DateField(verbose_name="Date du passage")
+    quantite = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name="Quantité récoltée"
+    )
+    observation = models.CharField(max_length=255, blank=True, verbose_name="Observation")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["date_passage"]
+
+    def __str__(self):
+        return f"{self.besoin.culture} — {self.date_passage} — {self.quantite} {self.besoin.unite_rendement}"
+
+
+class RapportCulture(models.Model):
+    """Bilan de fin de cycle pour un besoin clôturé : activités, problèmes, participants."""
+
+    besoin = models.OneToOneField(
+        BesoinCulture,
+        on_delete=models.CASCADE,
+        related_name="rapport_culture",
+        verbose_name="Culture concernée"
+    )
+    bilan_activites = models.TextField(blank=True, verbose_name="Bilan des activités")
+    problemes = models.TextField(blank=True, verbose_name="Difficultés rencontrées")
+    solutions = models.TextField(blank=True, verbose_name="Solutions appliquées")
+    resultats = models.TextField(blank=True, verbose_name="Résultats obtenus")
+    perspectives = models.TextField(blank=True, verbose_name="Perspectives")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Rapport — {self.besoin.culture} ({self.besoin.fiche.saison_label})"
+
+
+class ParticipationCulture(models.Model):
+    """Évaluation d'un agent sur un cycle de culture clôturé."""
+
+    class NiveauImplication(models.IntegerChoices):
+        FAIBLE     = 1, "1 - Faible"
+        MOYENNE    = 2, "2 - Moyenne"
+        BONNE      = 3, "3 - Bonne"
+        TRES_BONNE = 4, "4 - Très bonne"
+        EXCELLENTE = 5, "5 - Excellente"
+
+    class NiveauMaitrise(models.IntegerChoices):
+        DEBUTANT       = 1, "1 - Débutant"
+        APPRENTISSAGE  = 2, "2 - En apprentissage"
+        AUTONOME       = 3, "3 - Autonome"
+        BONNE_MAITRISE = 4, "4 - Bonne maîtrise"
+        EXPERT         = 5, "5 - Expert"
+
+    rapport = models.ForeignKey(
+        RapportCulture,
+        on_delete=models.CASCADE,
+        related_name="participations"
+    )
+    agent = models.ForeignKey(
+        Agent,
+        on_delete=models.CASCADE,
+        related_name="participations_culture"
+    )
+    implication = models.PositiveSmallIntegerField(
+        choices=NiveauImplication.choices,
+        default=NiveauImplication.BONNE,
+        verbose_name="Niveau d'implication"
+    )
+    maitrise = models.PositiveSmallIntegerField(
+        choices=NiveauMaitrise.choices,
+        default=NiveauMaitrise.AUTONOME,
+        verbose_name="Maîtrise de la culture"
+    )
+    observation = models.CharField(max_length=255, blank=True, verbose_name="Observation")
+
+    class Meta:
+        unique_together = ("rapport", "agent")
+
+    def __str__(self):
+        return f"{self.agent} — {self.rapport.besoin.culture}"

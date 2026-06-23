@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from cultures.models import Culture, FicheCulture, BesoinCulture
+from cultures.models import (
+    Culture, FicheCulture, BesoinCulture, PassageRecolte,
+    RapportCulture, ParticipationCulture,
+)
 
 
 @admin.register(Culture)
@@ -22,7 +25,28 @@ class FicheCultureAdmin(admin.ModelAdmin):
     inlines = [BesoinCultureInline]
 
 
+class PassageRecolteInline(admin.TabularInline):
+    model = PassageRecolte
+    extra = 0
+    fields = ("date_passage", "quantite", "observation")
+    readonly_fields = ("created_at",)
+
+
 @admin.register(BesoinCulture)
 class BesoinCultureAdmin(admin.ModelAdmin):
-    list_display = ("culture", "fiche", "rendement_estime", "rendement_reel", "date_recolte")
-    list_filter = ("culture",)
+    list_display = ("culture", "fiche", "rendement_estime", "rendement_reel", "recolte_cloturee", "date_recolte")
+    list_filter = ("culture", "recolte_cloturee")
+    inlines = [PassageRecolteInline]
+
+
+class ParticipationCultureInline(admin.TabularInline):
+    model = ParticipationCulture
+    extra = 0
+    fields = ("agent", "implication", "maitrise", "observation")
+
+
+@admin.register(RapportCulture)
+class RapportCultureAdmin(admin.ModelAdmin):
+    list_display = ("besoin", "created_at")
+    list_filter = ("besoin__culture",)
+    inlines = [ParticipationCultureInline]

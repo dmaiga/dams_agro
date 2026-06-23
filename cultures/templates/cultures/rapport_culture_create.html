@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Rapport de clôture — {{ besoin.culture }}{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div>
+        <h3 class="mb-1">Rapport de clôture</h3>
+        <small class="text-muted">
+            {{ besoin.culture }} · {{ besoin.fiche.saison_label }} ·
+            Rendement : <strong>{{ besoin.rendement_reel }} {{ besoin.unite_rendement }}</strong>
+        </small>
+    </div>
+    <a href="{% url 'fiche_detail' besoin.fiche.pk %}" class="btn btn-outline-secondary btn-sm flex-shrink-0">
+        Passer pour l'instant
+    </a>
+</div>
+
+<form method="post" id="form-rapport">
+    {% csrf_token %}
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-clipboard2-check"></i> Bilan du cycle</h6>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">{{ form.bilan_activites.label }}</label>
+                {{ form.bilan_activites }}
+                {% for e in form.bilan_activites.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">{{ form.problemes.label }}</label>
+                    {{ form.problemes }}
+                    {% for e in form.problemes.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">{{ form.solutions.label }}</label>
+                    {{ form.solutions }}
+                    {% for e in form.solutions.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">{{ form.resultats.label }}</label>
+                    {{ form.resultats }}
+                    {% for e in form.resultats.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">{{ form.perspectives.label }}</label>
+                    {{ form.perspectives }}
+                    {% for e in form.perspectives.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h6 class="mb-0"><i class="bi bi-people"></i> Agents ayant participé</h6>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="btn-add-agent">
+                <i class="bi bi-plus"></i> Ajouter un agent
+            </button>
+        </div>
+        <div class="card-body">
+            {{ formset.management_form }}
+            <div id="participants-container">
+                {% for pf in formset %}
+                <div class="participant-row border rounded p-3 mb-3 {% if pf.instance.pk %}bg-light{% endif %}">
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label class="form-label small fw-semibold">Agent</label>
+                            {{ pf.agent }}
+                            {% for e in pf.agent.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Implication</label>
+                            {{ pf.implication }}
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Maîtrise</label>
+                            {{ pf.maitrise }}
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label small fw-semibold">Observation</label>
+                            {{ pf.observation }}
+                        </div>
+                        <div class="col-12 col-md-1 d-flex align-items-end">
+                            {% if pf.instance.pk %}
+                            <div>
+                                <label class="form-label small fw-semibold d-block">Suppr.</label>
+                                {{ pf.DELETE }}
+                            </div>
+                            {% endif %}
+                            {{ pf.id }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="empty-form" class="d-none">
+                <div class="participant-row border rounded p-3 mb-3">
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label class="form-label small fw-semibold">Agent</label>
+                            {{ formset.empty_form.agent }}
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Implication</label>
+                            {{ formset.empty_form.implication }}
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Maîtrise</label>
+                            {{ formset.empty_form.maitrise }}
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label small fw-semibold">Observation</label>
+                            {{ formset.empty_form.observation }}
+                        </div>
+                        <div class="col-md-1"></div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-muted small mb-0">
+                <i class="bi bi-info-circle"></i>
+                Seuls les agents sous votre supervision apparaissent.
+            </p>
+        </div>
+    </div>
+
+    <div class="d-grid d-md-flex gap-2">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check2-circle"></i> Enregistrer le rapport
+        </button>
+        <a href="{% url 'fiche_detail' besoin.fiche.pk %}" class="btn btn-outline-secondary">
+            Passer pour l'instant
+        </a>
+    </div>
+</form>
+
+<script>
+(function () {
+    const container = document.getElementById('participants-container');
+    const emptyForm = document.getElementById('empty-form');
+    const totalForms = document.getElementById('id_participations-TOTAL_FORMS');
+
+    document.getElementById('btn-add-agent').addEventListener('click', function () {
+        const idx = parseInt(totalForms.value);
+        const clone = emptyForm.querySelector('.participant-row').cloneNode(true);
+        clone.innerHTML = clone.innerHTML.replace(/__prefix__/g, idx);
+        container.appendChild(clone);
+        totalForms.value = idx + 1;
+    });
+})();
+</script>
+
+{% endblock %}

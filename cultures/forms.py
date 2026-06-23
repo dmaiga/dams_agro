@@ -1,7 +1,10 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from cultures.models import Culture, FicheCulture, BesoinCulture
+from cultures.models import (
+    Culture, FicheCulture, BesoinCulture, PassageRecolte,
+    RapportCulture, ParticipationCulture,
+)
 
 
 class CultureForm(forms.ModelForm):
@@ -79,7 +82,7 @@ class BesoinCultureForm(forms.ModelForm):
             ),
         }
         labels = {
-            "semence_quantite": "Quantité",
+            "semence_quantite": "Qte Semence",
             "semence_unite": "Unité",
             "engrais": "Engrais fournis",
             "produit_phyto": "Produits phytosanitaires",
@@ -123,3 +126,84 @@ class SuiviRendementForm(forms.ModelForm):
             "date_recolte": "Date de récolte",
             "observation_direction": "Observation",
         }
+
+
+class PassageRecolteForm(forms.ModelForm):
+    class Meta:
+        model = PassageRecolte
+        fields = ("date_passage", "quantite", "observation")
+        widgets = {
+            "date_passage": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"},
+                format="%Y-%m-%d",
+            ),
+            "quantite": forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01", "placeholder": "Ex : 0.8"}
+            ),
+            "observation": forms.TextInput(
+                attrs={"class": "form-control",
+                       "placeholder": "Remarques sur ce passage (optionnel)"}
+            ),
+        }
+        labels = {
+            "date_passage": "Date du passage",
+            "quantite": "Quantité récoltée",
+            "observation": "Observation",
+        }
+
+
+class RapportCultureForm(forms.ModelForm):
+    class Meta:
+        model = RapportCulture
+        fields = ("bilan_activites", "problemes", "solutions", "resultats", "perspectives")
+        widgets = {
+            "bilan_activites": forms.Textarea(
+                attrs={"class": "form-control", "rows": 3,
+                       "placeholder": "Résumé des travaux effectués sur ce cycle…"}
+            ),
+            "problemes": forms.Textarea(
+                attrs={"class": "form-control", "rows": 3,
+                       "placeholder": "Difficultés rencontrées (maladies, manque d'eau, etc.)…"}
+            ),
+            "solutions": forms.Textarea(
+                attrs={"class": "form-control", "rows": 3,
+                       "placeholder": "Solutions appliquées…"}
+            ),
+            "resultats": forms.Textarea(
+                attrs={"class": "form-control", "rows": 3,
+                       "placeholder": "Résultats obtenus…"}
+            ),
+            "perspectives": forms.Textarea(
+                attrs={"class": "form-control", "rows": 3,
+                       "placeholder": "Perspectives pour le prochain cycle…"}
+            ),
+        }
+
+
+class ParticipationCultureForm(forms.ModelForm):
+    class Meta:
+        model = ParticipationCulture
+        fields = ("agent", "implication", "maitrise", "observation")
+        widgets = {
+            "agent":       forms.Select(attrs={"class": "form-select"}),
+            "implication": forms.Select(attrs={"class": "form-select"}),
+            "maitrise":    forms.Select(attrs={"class": "form-select"}),
+            "observation": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Observation (optionnel)"}
+            ),
+        }
+        labels = {
+            "agent":       "Agent",
+            "implication": "Implication",
+            "maitrise":    "Maîtrise de la culture",
+            "observation": "Observation",
+        }
+
+
+ParticipationCultureFormSet = inlineformset_factory(
+    RapportCulture,
+    ParticipationCulture,
+    form=ParticipationCultureForm,
+    extra=1,
+    can_delete=True,
+)
