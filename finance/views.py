@@ -28,12 +28,31 @@ def category_list(request):
 @login_required
 def operation_list(request):
 
+    # Les opérations générées automatiquement par un engagement financier
+    # (avance de trésorerie / remboursement) sont gérées depuis l'app
+    # engagements, pas ici, pour ne pas mélanger les deux vues.
     operations = Operation.objects.filter(
-        corrects_operation__isnull=True
+        corrects_operation__isnull=True,
+        engagement_origine__isnull=True,
+        remboursement_origine__isnull=True,
+    ).prefetch_related('corrections')
+
+    total_revenus = sum(
+        operation.real_amount
+        for operation in operations
+        if operation.operation_type == 'revenu'
+    )
+
+    total_depenses = sum(
+        operation.real_amount
+        for operation in operations
+        if operation.operation_type in ['depense', 'stock']
     )
 
     context = {
-        'operations': operations
+        'operations': operations,
+        'total_revenus': total_revenus,
+        'total_depenses': total_depenses,
     }
 
     return render(

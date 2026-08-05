@@ -26,6 +26,12 @@ from cultures.api_views import (
     BaseConnaissancesAPIView,
     RapportCultureListAPIView,
 )
+from engagements.api_views import (
+    EngagementListCreateAPIView,
+    EngagementDashboardAPIView,
+    EngagementDetailAPIView,
+    RemboursementListCreateAPIView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls ),
@@ -34,6 +40,7 @@ urlpatterns = [
     path('finance/', include('finance.urls')),
     path('rapports/', include('rapports.urls')),
     path('cultures/', include('cultures.urls')),
+    path('engagements/', include('engagements.urls')),
 
     path(
         'api/dashboard/',
@@ -98,5 +105,25 @@ urlpatterns = [
     path(
         "api/cultures/<int:pk>/",
         FicheCultureDetailAPIView.as_view(),
+    ),
+
+    # API réservée à DAMS Distribution — authentification par clé API
+    # (X-Api-Key), seul module du repo acceptant POST. Voir
+    # engagements/APP_ENGAGEMENTS.md.
+    path(
+        "api/engagements/",
+        EngagementListCreateAPIView.as_view(),
+    ),
+    path(
+        "api/engagements/dashboard/",
+        EngagementDashboardAPIView.as_view(),
+    ),
+    path(
+        "api/engagements/<int:pk>/",
+        EngagementDetailAPIView.as_view(),
+    ),
+    path(
+        "api/engagements/<int:pk>/remboursements/",
+        RemboursementListCreateAPIView.as_view(),
     ),
 ]

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-9">
+
+        <!-- Navigation & Bouton Retour -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{% url 'engagement_list' %}" class="btn btn-link text-decoration-none p-0 text-dark">
+                <i class="bi bi-arrow-left me-2"></i>Retour
+            </a>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'engagement_list' %}">Engagements</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Détails</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Carte Principale -->
+        <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+            <div class="card-header text-white {% if engagement.nature == 'avance_tresorerie' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ engagement.label }}</h4>
+                        <small class="opacity-75"><i class="bi bi-calendar3 me-1"></i> {{ engagement.date_engagement }} — {{ engagement.reference_superviseur }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-white text-dark text-uppercase shadow-sm">
+                            {% if engagement.nature == 'avance_tresorerie' %}Avance{% else %}Dépense pour compte{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <!-- Zone Montants -->
+                <div class="row g-3 mb-4">
+                    <div class="col-4">
+                        <div class="p-3 rounded-4 bg-light text-center border">
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">Montant initial</small>
+                            <span class="fs-5 fw-bold text-dark">{{ engagement.montant_initial }}</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 rounded-4 bg-light text-center border">
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">Remboursé</small>
+                            <span class="fs-5 fw-bold text-success">{{ engagement.montant_rembourse }}</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 rounded-4 bg-light text-center border">
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.65rem;">Reste à rembourser</small>
+                            <span class="fs-5 fw-bold text-danger">{{ engagement.reste_a_rembourser }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="p-3 border rounded-4 bg-white d-flex justify-content-between align-items-center">
+                            <div>
+                                <label class="text-muted small d-block mb-1">État</label>
+                                {% if engagement.etat == 'ouvert' %}
+                                    <span class="badge bg-secondary fs-6">Ouvert</span>
+                                {% elif engagement.etat == 'partiel' %}
+                                    <span class="badge bg-warning text-dark fs-6">Partiellement remboursé</span>
+                                {% else %}
+                                    <span class="badge bg-success fs-6">Soldé</span>
+                                {% endif %}
+                            </div>
+                            {% if engagement.technicien %}
+                            <div class="text-end">
+                                <label class="text-muted small d-block mb-1">Technicien concerné</label>
+                                <span class="fw-bold">{{ engagement.technicien.full_name }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="p-3 border rounded-4 bg-white">
+                            <label class="text-muted small d-block mb-2"><i class="bi bi-sticky me-1"></i> Note / Observations</label>
+                            <div class="fst-italic text-dark">
+                                {% if engagement.note %}
+                                    {{ engagement.note|linebreaks }}
+                                {% else %}
+                                    <span class="text-muted small">Aucune note saisie.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if engagement.reste_a_rembourser > 0 %}
+                <div class="mt-4">
+                    <a href="{% url 'remboursement_create' engagement.pk %}" class="btn btn-warning w-100 py-3 fw-bold shadow-sm text-dark">
+                        <i class="bi bi-cash-stack me-2"></i>Enregistrer un remboursement
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section Historique des remboursements -->
+        <div class="d-flex align-items-center mb-3">
+            <h5 class="mb-0 fw-bold">Remboursements</h5>
+            <span class="ms-2 badge rounded-pill bg-dark">{{ remboursements.count }}</span>
+        </div>
+
+        {% for remboursement in remboursements %}
+        <div class="card border-0 shadow-sm mb-3 border-start border-success border-4">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="fw-bold fs-5 text-success">{{ remboursement.montant }}</span>
+                        <small class="text-muted ms-2">{{ remboursement.date_remboursement }}</small>
+                    </div>
+                    <i class="bi bi-check-circle text-success"></i>
+                </div>
+                {% if remboursement.note %}
+                <p class="mb-0 small text-secondary">
+                    <i class="bi bi-chat-left-dots me-1"></i> {{ remboursement.note }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-4 bg-white rounded-4 border border-dashed">
+            <p class="text-muted mb-0 small">Aucun remboursement enregistré pour cet engagement.</p>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

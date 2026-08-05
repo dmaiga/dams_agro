@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Raccourci supérieur -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total</small>
+            <span class="fs-5 fw-bold text-dark">{{ engagements.count }} eng.</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total engagé</small>
+            <span class="fs-5 fw-bold text-dark">{{ total_engage }}</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total remboursé</small>
+            <span class="fs-5 fw-bold text-success">{{ total_rembourse }}</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Reste à rembourser</small>
+            <span class="fs-5 fw-bold text-danger">{{ total_reste_a_rembourser }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Bloc liste principale -->
+<div class="card shadow-sm border-0 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark">
+                <i class="bi bi-cash-coin me-2 text-primary"></i>Engagements financiers
+            </h5>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+
+        <!-- AFFICHAGE TABLEAU : Écrans Moyens et Larges -->
+        <div class="table-responsive d-none d-md-block">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th>Nature</th>
+                        <th>Superviseur</th>
+                        <th>Libellé</th>
+                        <th class="text-end">Montant initial</th>
+                        <th class="text-end">Reste à rembourser</th>
+                        <th class="text-end pe-4">État</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for engagement in engagements %}
+                    <tr onclick="window.location='{% url 'engagement_detail' engagement.pk %}'" style="cursor: pointer;">
+                        <td class="ps-4 text-muted small">{{ engagement.date_engagement }}</td>
+                        <td>
+                            {% if engagement.nature == 'avance_tresorerie' %}
+                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">Avance</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle">Dépense pour compte</span>
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ engagement.reference_superviseur }}</td>
+                        <td class="fw-medium">{{ engagement.label }}</td>
+                        <td class="text-end fw-bold">{{ engagement.montant_initial }}</td>
+                        <td class="text-end fw-bold {% if engagement.reste_a_rembourser > 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ engagement.reste_a_rembourser }}
+                        </td>
+                        <td class="text-end pe-4">
+                            {% if engagement.etat == 'ouvert' %}
+                                <span class="badge bg-secondary">Ouvert</span>
+                            {% elif engagement.etat == 'partiel' %}
+                                <span class="badge bg-warning text-dark">Partiel</span>
+                            {% else %}
+                                <span class="badge bg-success">Soldé</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-5 text-muted">Aucun engagement enregistré.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- AFFICHAGE LISTE : Écrans Mobiles -->
+        <div class="d-md-none">
+            <div class="list-group list-group-flush">
+                {% for engagement in engagements %}
+                <a href="{% url 'engagement_detail' engagement.pk %}" class="list-group-item list-group-item-action py-3 px-4 border-start-0 border-end-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                 style="width: 45px; height: 45px; background: {% if engagement.nature == 'avance_tresorerie' %}#e8f5e9{% else %}#fff8e1{% endif %};">
+                                <i class="bi {% if engagement.nature == 'avance_tresorerie' %}bi-arrow-up-right text-success{% else %}bi-receipt text-warning{% endif %} fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">{{ engagement.label }}</h6>
+                                <small class="text-muted">{{ engagement.reference_superviseur }} — {{ engagement.date_engagement }}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold fs-6">{{ engagement.montant_initial }}</div>
+                            {% if engagement.etat == 'ouvert' %}
+                                <span class="badge bg-secondary" style="font-size: 0.65rem;">OUVERT</span>
+                            {% elif engagement.etat == 'partiel' %}
+                                <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">PARTIEL</span>
+                            {% else %}
+                                <span class="badge bg-success" style="font-size: 0.65rem;">SOLDÉ</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="text-center py-5">
+                    <i class="bi bi-cash-coin fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">Aucun engagement pour le moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

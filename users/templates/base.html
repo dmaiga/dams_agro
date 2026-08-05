@@ -71,7 +71,6 @@
     </style>
 </head>
 <body>
-
     <nav class="navbar navbar-light bg-white fixed-top d-lg-none border-bottom px-3 shadow-sm">
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
             <span class="navbar-toggler-icon"></span>
@@ -112,11 +111,11 @@
                                 <li class="nav-item">
                                     <a href="{% url 'fiche_list' %}"
                                        class="nav-link {% if 'fiche_list' in request.path %}active{% endif %}">
-                                        <i class="bi bi-people"></i>
+                                        <i class="fas fa-seedling w-5"></i>
                                         Culture
                                     </a>
                                 </li>
-                            
+
                             {% else %}
                 <li class="nav-item">
                         <a href="{% url 'operation_list' %}" class="nav-link {% if 'operation' in request.path %}active{% endif %}">
@@ -129,10 +128,16 @@
                             <i class="bi bi-box"></i> Produits
                         </a>
                     </li>
-                
+
                     <li class="nav-item">
                         <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.path %}active{% endif %}">
                             <i class="bi bi-grid-1x2"></i> Catégories
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{% url 'engagement_list' %}" class="nav-link {% if 'engagement' in request.path %}active{% endif %}">
+                            <i class="bi bi-cash-coin"></i> Engagements
                         </a>
                     </li>
                 {% endif %}

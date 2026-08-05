@@ -37,6 +37,10 @@ ALLOWED_HOSTS = os.getenv(
     "127.0.0.1,localhost"
 ).split(",")
 
+# Clé API pour l'authentification de DAMS Distribution sur /api/engagements/.
+# Configurée via variable d'environnement — jamais codée en dur.
+DAMS_DISTRIBUTION_API_KEY = os.getenv("DAMS_DISTRIBUTION_API_KEY", "")
+
 
 REST_FRAMEWORK = {
 
@@ -61,6 +65,7 @@ INSTALLED_APPS = [
     'finance',
     'rapports',
     'cultures',
+    'engagements',
 ]
 
 MIDDLEWARE = [

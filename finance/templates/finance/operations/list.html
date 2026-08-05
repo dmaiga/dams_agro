@@ -6,8 +6,20 @@
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm p-3">
-            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Aujourd'hui</small>
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total</small>
             <span class="fs-5 fw-bold text-dark">{{ operations.count }} op.</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total revenus</small>
+            <span class="fs-5 fw-bold text-success">{{ total_revenus }}</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total dépenses</small>
+            <span class="fs-5 fw-bold text-danger">{{ total_depenses }}</span>
         </div>
     </div>
     <div class="col-6 col-md-3">
