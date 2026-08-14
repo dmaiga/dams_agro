@@ -41,6 +41,15 @@ ALLOWED_HOSTS = os.getenv(
 # Configurée via variable d'environnement — jamais codée en dur.
 DAMS_DISTRIBUTION_API_KEY = os.getenv("DAMS_DISTRIBUTION_API_KEY", "")
 
+# Transmission sortante des cessions vers DAMS Distribution (sens inverse de
+# DAMS_DISTRIBUTION_API_KEY ci-dessus, qui authentifie DAMS Distribution
+# *vers* dams_champs). Le contrat exact (chemin, format) n'est pas encore
+# défini côté DAMS Distribution : tant que l'URL n'est pas configurée, la
+# transmission échoue proprement sans jamais bloquer la création locale de
+# la Cession. Voir cessions/services.py.
+DAMS_DISTRIBUTION_CESSIONS_URL = os.getenv("DAMS_DISTRIBUTION_CESSIONS_URL", "")
+DAMS_DISTRIBUTION_OUTBOUND_API_KEY = os.getenv("DAMS_DISTRIBUTION_OUTBOUND_API_KEY", "")
+
 
 REST_FRAMEWORK = {
 
@@ -66,6 +75,7 @@ INSTALLED_APPS = [
     'rapports',
     'cultures',
     'engagements',
+    'cessions',
 ]
 
 MIDDLEWARE = [

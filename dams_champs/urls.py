@@ -32,6 +32,11 @@ from engagements.api_views import (
     EngagementDetailAPIView,
     RemboursementListCreateAPIView,
 )
+from cessions.api_views import (
+    CessionListAPIView,
+    CessionDashboardAPIView,
+    CessionDetailAPIView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls ),
@@ -41,6 +46,7 @@ urlpatterns = [
     path('rapports/', include('rapports.urls')),
     path('cultures/', include('cultures.urls')),
     path('engagements/', include('engagements.urls')),
+    path('cessions/', include('cessions.urls')),
 
     path(
         'api/dashboard/',
@@ -125,5 +131,20 @@ urlpatterns = [
     path(
         "api/engagements/<int:pk>/remboursements/",
         RemboursementListCreateAPIView.as_view(),
+    ),
+
+    # API réservée à `dams` — lecture seule des cessions déclarées vers
+    # DAMS Distribution. Voir cessions/APP_CESSIONS.md.
+    path(
+        "api/cessions/",
+        CessionListAPIView.as_view(),
+    ),
+    path(
+        "api/cessions/dashboard/",
+        CessionDashboardAPIView.as_view(),
+    ),
+    path(
+        "api/cessions/<int:pk>/",
+        CessionDetailAPIView.as_view(),
     ),
 ]

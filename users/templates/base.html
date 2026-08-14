@@ -124,6 +124,17 @@
                     </li>
 
                     <li class="nav-item">
+                        <a href="{% url 'engagement_list' %}" class="nav-link {% if 'engagement' in request.path %}active{% endif %}">
+                            <i class="bi bi-cash-coin"></i> Engagements
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{% url 'cession_list' %}" class="nav-link {% if 'cession' in request.path %}active{% endif %}">
+                            <i class="bi bi-truck"></i> Envois DAMS Distribution
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{% url 'product_list' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
                             <i class="bi bi-box"></i> Produits
                         </a>
@@ -132,12 +143,6 @@
                     <li class="nav-item">
                         <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.path %}active{% endif %}">
                             <i class="bi bi-grid-1x2"></i> Catégories
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{% url 'engagement_list' %}" class="nav-link {% if 'engagement' in request.path %}active{% endif %}">
-                            <i class="bi bi-cash-coin"></i> Engagements
                         </a>
                     </li>
                 {% endif %}
